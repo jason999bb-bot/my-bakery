@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>パン屋 在庫・レシピ管理</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Meiryo', sans-serif; background: #fafaf8; color: #1a1a1a; min-height: 100vh; }
+.container { max-width: 680px; margin: 0 auto; padding: 1rem; }
+h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; letter-spacing: 0.03em; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid #e8e0d8; margin-bottom: 1.25rem; margin-top: 0.5rem; }
+.tab { padding: 8px 16px; font-size: 13px; border: none; background: none; cursor: pointer; color: #888; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: inherit; }
+.tab.active { color: #3a2a1a; border-bottom-color: #3a2a1a; font-weight: 500; }
+.section { display: none; }
+.section.active { display: block; }
+.card { background: #fff; border: 1px solid #ede8e0; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 10px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+.metric { background: #f5f0e8; border-radius: 10px; padding: 0.875rem; }
+.metric-num { font-size: 26px; font-weight: 600; color: #3a2a1a; }
+.metric-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 500; }
+.badge-ok { background: #e6f4ea; color: #2e7d32; }
+.badge-low { background: #fff3e0; color: #e65100; }
+.badge-out { background: #fde8e8; color: #c62828; }
+.progress-bar { flex: 1; height: 6px; background: #eee; border-radius: 999px; overflow: hidden; min-width: 40px; }
+.progress-fill { height: 100%; border-radius: 999px; }
+.progress-ok { background: #4caf50; }
+.progress-low { background: #ff9800; }
+.progress-out { background: #e53935; }
+.btn { background: none; border: 1px solid #d0c8be; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; color: #3a2a1a; display: inline-flex; align-items: center; gap: 5px; font-family: inherit; }
+.btn:hover { background: #f5f0e8; }
+.btn-primary { background: #3a2a1a; color: #fff; border-color: #3a2a1a; }
+.btn-primary:hover { background: #2a1a0a; }
+.btn-danger { background: #fde8e8; color: #c62828; border-color: #e57373; font-size: 12px; padding: 4px 10px; }
+.field { display: flex; flex-direction: column; gap: 3px; }
+.field label { font-size: 11px; color: #888; }
+.field input { font-size: 13px; padding: 7px 9px; border: 1px solid #d0c8be; border-radius: 8px; background: #fff; color: #1a1a1a; font-family: inherit; }
+.field input:focus { outline: none; border-color: #8a6a4a; }
+.input-row { display: flex; gap: 8px; margin-bottom: 1rem; align-items: flex-end; flex-wrap: wrap; }
+.qty-ctrl { display: flex; align-items: center; gap: 6px; }
+.qty-btn { background: none; border: 1px solid #d0c8be; border-radius: 7px; width: 28px; height: 28px; font-size: 16px; cursor: pointer; color: #3a2a1a; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+.qty-btn:hover { background: #f5f0e8; }
+.qty-input { font-size: 13px; font-weight: 500; width: 90px; text-align: center; padding: 5px 6px; border: 1px solid #d0c8be; border-radius: 8px; background: #fff; color: #1a1a1a; font-family: inherit; }
+.empty-state { text-align: center; color: #aaa; font-size: 14px; padding: 2.5rem 1rem; }
+.recipe-body { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #ede8e0; }
+.recipe-body.open { display: block; }
+.ing-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; table-layout: fixed; }
+.ing-table th { text-align: left; color: #888; font-weight: 400; padding: 4px 6px; border-bottom: 1px solid #ede8e0; font-size: 12px; }
+.ing-table td { padding: 6px; border-bottom: 1px solid #ede8e0; word-break: break-word; }
+.section-note { font-size: 12px; color: #888; margin-bottom: 12px; background: #f5f0e8; padding: 8px 12px; border-radius: 8px; line-height: 1.6; }
+.shop-card { background: #fff; border: 1px solid #ede8e0; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 10px; }
+.link-btn { background: none; border: 1px solid #d0c8be; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; color: #3a2a1a; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; }
+.link-btn:hover { background: #f5f0e8; }
+.sync-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #888; margin-bottom: 12px; padding: 7px 12px; background: #f5f0e8; border-radius: 8px; }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+.sync-dot.ok { background: #4caf50; }
+.sync-dot.err { background: #e53935; }
+.sync-dot.loading { background: #ff9800; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #3a2a1a; color: #fff; font-size: 13px; padding: 9px 20px; border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; white-space: nowrap; font-family: inherit; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🍞 パン屋 在庫・レシピ管理</h1>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('inventory')">📦 在庫</button>
+    <button class="tab" onclick="showTab('recipes')">📖 レシピ</button>
+    <button class="tab" onclick="showTab('shop')">🛒 購入リスト</button>
+  </div>
+  <div class="sync-bar">
+    <div class="sync-dot loading" id="sync-dot"></div>
+    <span id="sync-status">Firebaseに接続中…</span>
+  </div>
+  <div id="inventory" class="section active">
+    <div class="grid2">
+      <div class="metric"><div class="metric-label">総材料数</div><div class="metric-num" id="total-count">0</div></div>
+      <div class="metric"><div class="metric-label">要補充</div><div class="metric-num" id="low-count" style="color:#e65100">0</div></div>
+    </div>
+    <div class="input-row">
+      <div class="field"><label>材料名</label><input id="new-name" type="text" placeholder="強力粉" style="width:110px" /></div>
+      <div class="field"><label>在庫量(g)</label><input id="new-qty" type="number" placeholder="1000" style="width:85px" min="0" step="0.001" /></div>
+      <div class="field"><label>最低量(g)</label><input id="new-min" type="number" placeholder="500" style="width:85px" min="0" step="0.001" /></div>
+      <div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="add-ing-btn">＋ 追加</button></div>
+    </div>
+    <div id="inventory-list"></div>
+  </div>
+  <div id="recipes" class="section">
+    <div class="section-note">粉量を基準にベーカーズ%で材料比率を設定できます。</div>
+    <div class="input-row">
+      <div class="field"><label>レシピ名</label><input id="recipe-name" type="text" placeholder="食パン" style="width:130px" /></div>
+      <div class="field"><label>基準粉量(g)</label><input id="recipe-flour" type="number" placeholder="1000" style="width:95px" min="0.001" step="0.001" value="1000" /></div>
+      <div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="add-rec-btn">＋ レシピ追加</button></div>
+    </div>
+    <div id="recipe-list"></div>
+  </div>
+  <div id="shop" class="section">
+    <div class="section-note">在庫が最低量を下回っている材料の一覧です。</div>
+    <div id="shop-list"></div>
+    <button class="btn" style="margin-top:8px;" id="copy-shop-btn">📋 リストをコピー</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDYeTv14IRtpTCVrjcnk7I0wF-KCYoP0Os",
+  authDomain: "bakery-53ea7.firebaseapp.com",
+  projectId: "bakery-53ea7",
+  storageBucket: "bakery-53ea7.firebasestorage.app",
+  messagingSenderId: "212598766314",
+  appId: "1:212598766314:web:86bef18fac3396e4c2b593"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const DOC_REF = doc(db, 'bakery', 'data');
+let state = { ingredients: [], recipes: [] };
+let saving = false;
+
+function fmt(n) {
+  const num = parseFloat(n);
+  if (isNaN(num) || num === 0) return '0';
+  if (Number.isInteger(num)) return num.toString();
+  return num.toPrecision(6).replace(/\.?0+$/, '');
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function setSyncStatus(status, msg) {
+  document.getElementById('sync-dot').className = 'sync-dot ' + status;
+  document.getElementById('sync-status').textContent = msg;
+}
+async function saveState() {
+  if (saving) return; saving = true;
+  setSyncStatus('loading', '保存中…');
+  try { await setDoc(DOC_REF, state); setSyncStatus('ok', 'Firebaseに保存済み ✓'); }
+  catch(e) { setSyncStatus('err', '保存エラー'); showToast('保存に失敗しました: ' + e.message); }
+  saving = false;
+}
+window.showTab = function(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['inventory','recipes','shop'][i]===id));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id==='shop') renderShop();
+};
+function getStatus(qty, min) {
+  if (qty<=0) return 'out';
+  if (min>0 && qty<=min) return 'low';
+  return 'ok';
+}
+function renderInventory() {
+  const total = state.ingredients.length;
+  const low = state.ingredients.filter(i=>getStatus(i.qty,i.min)!=='ok').length;
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('low-count').textContent = low;
+  const list = document.getElementById('inventory-list');
+  list.innerHTML = '';
+  if (!total) { list.innerHTML='<div class="empty-state">材料を追加してください</div>'; return; }
+  state.ingredients.forEach((ing, idx) => {
+    const s = getStatus(ing.qty, ing.min);
+    const pct = ing.min>0 ? Math.min(100,Math.round(ing.qty/ing.min*100)) : 100;
+    const labels = {ok:'十分',low:'少ない',out:'在庫なし'};
+    const card = document.createElement('div'); card.className='card';
+    const top = document.createElement('div'); top.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;';
+    const nameSpan = document.createElement('span'); nameSpan.style.cssText='font-weight:500;font-size:14px;'; nameSpan.textContent=ing.name;
+    const rDiv = document.createElement('div'); rDiv.style.cssText='display:flex;align-items:center;gap:8px;';
+    const badge = document.createElement('span'); badge.className=`badge badge-${s}`; badge.textContent=labels[s];
+    const delBtn = document.createElement('button'); delBtn.className='btn btn-danger'; delBtn.textContent='削除';
+    delBtn.addEventListener('click', ()=>{ state.ingredients.splice(idx,1); saveState(); renderInventory(); showToast('削除しました'); });
+    rDiv.appendChild(badge); rDiv.appendChild(delBtn); top.appendChild(nameSpan); top.appendChild(rDiv);
+    const bottom = document.createElement('div'); bottom.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
+    const qc = document.createElement('div'); qc.className='qty-ctrl';
+    const mb = document.createElement('button'); mb.className='qty-btn'; mb.textContent='−';
+    mb.addEventListener('click',()=>{ state.ingredients[idx].qty=Math.max(0,Math.round((state.ingredients[idx].qty-1)*1000)/1000); saveState(); renderInventory(); });
+    const qi = document.createElement('input'); qi.className='qty-input'; qi.type='number'; qi.min='0'; qi.step='0.001'; qi.value=fmt(ing.qty);
+    qi.addEventListener('change',()=>{ const v=parseFloat(qi.value); if(!isNaN(v)&&v>=0){state.ingredients[idx].qty=Math.round(v*1000)/1000; saveState(); renderInventory();} });
+    const gl = document.createElement('span'); gl.style.cssText='font-size:13px;color:#888;'; gl.textContent='g';
+    const pb2 = document.createElement('button'); pb2.className='qty-btn'; pb2.textContent='＋';
+    pb2.addEventListener('click',()=>{ state.ingredients[idx].qty=Math.round((state.ingredients[idx].qty+1)*1000)/1000; saveState(); renderInventory(); });
+    qc.appendChild(mb); qc.appendChild(qi); qc.appendChild(gl); qc.appendChild(pb2);
+    const bar = document.createElement('div'); bar.className='progress-bar';
+    const fill = document.createElement('div'); fill.className=`progress-fill progress-${s}`; fill.style.width=pct+'%'; bar.appendChild(fill);
+    const ml = document.createElement('span'); ml.style.cssText='font-size:12px;color:#888;white-space:nowrap;'; ml.textContent=`最低 ${fmt(ing.min)}g`;
+    bottom.appendChild(qc); bottom.appendChild(bar); bottom.appendChild(ml);
+    card.appendChild(top); card.appendChild(bottom); list.appendChild(card);
+  });
+}
+function renderRecipes() {
+  const list = document.getElementById('recipe-list');
+  list.innerHTML = '';
+  if (!state.recipes.length) { list.innerHTML='<div class="empty-state">レシピを追加してください</div>'; return; }
+  state.recipes.forEach((rec, ridx) => {
+    const flour = rec.flourBase||1000;
+    const canMake = rec.ingredients.every(ri=>{ const ing=state.ingredients.find(i=>i.name===ri.name); return ing&&ing.qty>=flour*ri.pct/100; });
+    const card = document.createElement('div'); card.className='card';
+    const header = document.createElement('div'); header.style.cssText='display:flex;align-items:center;justify-content:space-between;cursor:pointer;';
+    const hL = document.createElement('div');
+    const tEl = document.createElement('div'); tEl.style.cssText='font-weight:500;font-size:15px;'; tEl.textContent=rec.name;
+    const mEl = document.createElement('div'); mEl.style.cssText='font-size:12px;color:#888;margin-top:2px;'; mEl.textContent=`基準粉量 ${fmt(flour)}g ／ 材料 ${rec.ingredients.length}種`;
+    hL.appendChild(tEl); hL.appendChild(mEl);
+    const hR = document.createElement('div'); hR.style.cssText='display:flex;align-items:center;gap:8px;';
+    const badge = document.createElement('span'); badge.className=`badge ${canMake?'badge-ok':'badge-low'}`; badge.textContent=canMake?'製造可':'材料不足';
+    const rdBtn = document.createElement('button'); rdBtn.className='btn btn-danger'; rdBtn.textContent='削除';
+    rdBtn.addEventListener('click', e=>{ e.stopPropagation(); state.recipes.splice(ridx,1); saveState(); renderRecipes(); showToast('レシピを削除しました'); });
+    hR.appendChild(badge); hR.appendChild(rdBtn); header.appendChild(hL); header.appendChild(hR);
+    const body = document.createElement('div'); body.className='recipe-body'; body.id='rb-'+ridx;
+    const table = document.createElement('table'); table.className='ing-table';
+    table.innerHTML='<thead><tr><th style="width:40%">材料</th><th style="width:20%;text-align:right">%</th><th style="width:25%;text-align:right">量(g)</th><th style="width:15%"></th></tr></thead>';
+    const tbody = document.createElement('tbody');
+    if (!rec.ingredients.length) {
+      tbody.innerHTML='<tr><td colspan="4" style="color:#aaa;padding:8px 6px;font-size:13px;">材料を追加してください</td></tr>';
+    } else {
+      rec.ingredients.forEach((ri,ii)=>{
+        const ing=state.ingredients.find(i=>i.name===ri.name);
+        const needed=flour*ri.pct/100; const ok=ing&&ing.qty>=needed;
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td style="${ok?'':'color:#c62828'}">${ri.name}</td><td style="text-align:right">${fmt(ri.pct)}%</td><td style="text-align:right">${fmt(needed)}g</td><td style="text-align:right"></td>`;
+        const idBtn=document.createElement('button'); idBtn.className='btn btn-danger'; idBtn.style.cssText='font-size:11px;padding:3px 8px;'; idBtn.textContent='削除';
+        idBtn.addEventListener('click',()=>{ state.recipes[ridx].ingredients.splice(ii,1); saveState(); renderRecipes(); const rb=document.getElementById('rb-'+ridx); if(rb)rb.classList.add('open'); showToast('材料を削除しました'); });
+        tr.querySelector('td:last-child').appendChild(idBtn); tbody.appendChild(tr);
+      });
+    }
+    table.appendChild(tbody); body.appendChild(table);
+    const addRow=document.createElement('div'); addRow.style.cssText='display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;margin-top:8px;';
+    const nF=document.createElement('div'); nF.className='field'; nF.innerHTML='<label>材料名</label>';
+    const nI=document.createElement('input'); nI.type='text'; nI.placeholder='砂糖'; nI.style.width='120px'; nF.appendChild(nI);
+    const pF=document.createElement('div'); pF.className='field'; pF.innerHTML='<label>ベーカーズ%</label>';
+    const pI=document.createElement('input'); pI.type='number'; pI.placeholder='5'; pI.min='0'; pI.step='0.001'; pI.style.width='80px'; pF.appendChild(pI);
+    const aB=document.createElement('button'); aB.className='btn btn-primary'; aB.style.fontSize='12px'; aB.textContent='＋ 追加';
+    aB.addEventListener('click',()=>{ const n=nI.value.trim(); const p=parseFloat(pI.value); if(!n||isNaN(p)){showToast('材料名とベーカーズ%を入力してください');return;} state.recipes[ridx].ingredients.push({name:n,pct:Math.round(p*1000)/1000,isPercent:true}); saveState(); renderRecipes(); const rb=document.getElementById('rb-'+ridx); if(rb)rb.classList.add('open'); });
+    addRow.appendChild(nF); addRow.appendChild(pF); addRow.appendChild(aB); body.appendChild(addRow);
+    const calcRow=document.createElement('div'); calcRow.style.cssText='margin-top:12px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;';
+    const fF=document.createElement('div'); fF.className='field'; fF.innerHTML='<label>実際の粉量</label>';
+    const fW=document.createElement('div'); fW.style.cssText='display:flex;align-items:center;gap:4px;';
+    const fI=document.createElement('input'); fI.type='number'; fI.placeholder=fmt(flour); fI.step='0.001'; fI.min='0.001'; fI.style.cssText='width:90px;font-size:13px;padding:6px 8px;border:1px solid #d0c8be;border-radius:8px;background:#fff;color:#1a1a1a;font-family:inherit;';
+    const gL=document.createElement('span'); gL.style.cssText='font-size:13px;color:#888;'; gL.textContent='g';
+    fW.appendChild(fI); fW.appendChild(gL); fF.appendChild(fW);
+    const cB=document.createElement('button'); cB.className='btn'; cB.style.fontSize='12px'; cB.textContent='🧮 計算';
+    const rD=document.createElement('div'); rD.style.cssText='margin-top:8px;font-size:13px;color:#888;line-height:1.8;width:100%;';
+    cB.addEventListener('click',()=>{ const actual=parseFloat(fI.value); if(isNaN(actual)||actual<=0){showToast('粉量を入力してください');return;} rD.textContent=rec.ingredients.map(ri=>`${ri.name}：${fmt(Math.round(actual*ri.pct/100*1000)/1000)}g（${fmt(ri.pct)}%）`).join('　')||'材料なし'; });
+    calcRow.appendChild(fF); calcRow.appendChild(cB);
+    if (canMake) {
+      const uB=document.createElement('button'); uB.className='btn'; uB.style.fontSize='12px'; uB.textContent='👨‍🍳 製造して在庫を減らす';
+      uB.addEventListener('click',()=>{ rec.ingredients.forEach(ri=>{const ing=state.ingredients.find(i=>i.name===ri.name); if(ing)ing.qty=Math.max(0,Math.round((ing.qty-flour*ri.pct/100)*1000)/1000);}); saveState(); renderInventory(); renderRecipes(); showToast('在庫を更新しました'); });
+      calcRow.appendChild(uB);
+    }
+    body.appendChild(calcRow); body.appendChild(rD);
+    header.addEventListener('click',()=>body.classList.toggle('open'));
+    card.appendChild(header); card.appendChild(body); list.appendChild(card);
+  });
+}
+function renderShop() {
+  const list=document.getElementById('shop-list');
+  const items=state.ingredients.filter(i=>getStatus(i.qty,i.min)!=='ok');
+  if(!items.length){list.innerHTML='<div class="empty-state">✅ 補充が必要な材料はありません</div>';return;}
+  list.innerHTML='';
+  items.forEach(ing=>{
+    const needed=Math.max(0,ing.min-ing.qty);
+    const q=encodeURIComponent('パン製菓材料 '+ing.name);
+    const card=document.createElement('div'); card.className='shop-card';
+    card.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;"><div><div style="font-weight:500;font-size:14px;">${ing.name}</div><div style="font-size:12px;color:#888;margin-top:2px;">在庫 ${fmt(ing.qty)}g ／ 最低 ${fmt(ing.min)}g（不足 ${fmt(needed)}g）</div></div><div style="display:flex;gap:6px;"><button class="link-btn" data-url="https://www.amazon.co.jp/s?k=${q}">🛒 Amazon</button><button class="link-btn" data-url="https://search.rakuten.co.jp/search/mall/${q}/">🛍 楽天</button></div></div>`;
+    card.querySelectorAll('.link-btn').forEach(btn=>btn.addEventListener('click',()=>window.open(btn.dataset.url,'_blank')));
+    list.appendChild(card);
+  });
+}
+function render(){renderInventory();renderRecipes();}
+document.getElementById('add-ing-btn').addEventListener('click',()=>{
+  const name=document.getElementById('new-name').value.trim();
+  const qty=parseFloat(document.getElementById('new-qty').value)||0;
+  const min=parseFloat(document.getElementById('new-min').value)||0;
+  if(!name)return;
+  if(state.ingredients.find(i=>i.name===name)){showToast('同じ名前の材料があります');return;}
+  state.ingredients.push({name,qty,min}); saveState(); renderInventory();
+  ['new-name','new-qty','new-min'].forEach(id=>document.getElementById(id).value='');
+});
+document.getElementById('add-rec-btn').addEventListener('click',()=>{
+  const name=document.getElementById('recipe-name').value.trim();
+  const flour=parseFloat(document.getElementById('recipe-flour').value)||1000;
+  if(!name)return;
+  state.recipes.push({name,flourBase:flour,ingredients:[]}); saveState(); renderRecipes();
+  document.getElementById('recipe-name').value='';
+});
+document.getElementById('copy-shop-btn').addEventListener('click',()=>{
+  const items=state.ingredients.filter(i=>getStatus(i.qty,i.min)!=='ok');
+  if(!items.length){showToast('補充が必要な材料はありません');return;}
+  navigator.clipboard.writeText('【購入リスト】\n'+items.map(i=>`・${i.name}：${fmt(Math.max(0,i.min-i.qty))}g不足`).join('\n'));
+  showToast('コピーしました');
+});
+setSyncStatus('loading','Firebaseに接続中…');
+onSnapshot(DOC_REF,(snap)=>{
+  if(snap.exists()){const d=snap.data(); state.ingredients=d.ingredients||[]; state.recipes=d.recipes||[];}
+  render(); setSyncStatus('ok','Firebaseと同期済み ✓');
+},(err)=>{
+  setSyncStatus('err','接続エラー: '+err.message);
+  showToast('Firebase接続エラー: '+err.message);
+});
+</script>
+</body>
+</html>
