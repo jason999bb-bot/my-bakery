@@ -8,7 +8,8 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Meiryo', sans-serif; background: #fafaf8; color: #1a1a1a; min-height: 100vh; }
 .container { max-width: 680px; margin: 0 auto; padding: 1rem; }
-h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; letter-spacing: 0.03em; }
+h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; letter-spacing: 0.03em; display: flex; align-items: center; gap: 8px; }
+.v-badge { font-size: 11px; background: #e6f4ea; color: #2e7d32; padding: 2px 8px; border-radius: 999px; font-weight: normal; }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid #e8e0d8; margin-bottom: 1.25rem; margin-top: 0.5rem; }
 .tab { padding: 8px 16px; font-size: 13px; border: none; background: none; cursor: pointer; color: #888; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: inherit; }
 .tab.active { color: #3a2a1a; border-bottom-color: #3a2a1a; font-weight: 500; }
@@ -60,7 +61,6 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #3a2a1a; color: #fff; font-size: 13px; padding: 9px 20px; border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; white-space: nowrap; font-family: inherit; }
 .toast.show { opacity: 1; }
-
 .recipe-edit-area { background: #fffdfa; padding: 12px; border: 1px solid #f0eae1; border-radius: 8px; margin-bottom: 12px; }
 .recipe-prod-area { background: #f4f6f8; padding: 12px; border: 1px dashed #d0d7de; border-radius: 8px; }
 .calc-list { list-style: none; margin-top: 12px; border-top: 1px solid #d0d7de; padding-top: 4px; }
@@ -68,11 +68,15 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 .calc-list li:last-child { border-bottom: none; }
 .calc-list li strong { font-weight: 600; font-size: 15px; color: #1a1a1a; }
 .calc-list li span { color: #3a2a1a; }
+#error-box { display: none; background: #fde8e8; border: 1px solid #c62828; color: #c62828; padding: 10px; margin-bottom: 10px; border-radius: 8px; font-size: 12px; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>🍞 パン屋 在庫・レシピ管理</h1>
+  <h1>🍞 パン屋 在庫・レシピ管理 <span class="v-badge">更新版</span></h1>
+  
+  <div id="error-box"></div>
+
   <div class="tabs">
     <button class="tab active" onclick="showTab('inventory')">📦 在庫</button>
     <button class="tab" onclick="showTab('recipes')">📖 レシピ</button>
@@ -116,9 +120,16 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 </div>
 <div class="toast" id="toast"></div>
 
+<script>
+window.addEventListener('error', function(e) {
+  document.getElementById('error-box').style.display = 'block';
+  document.getElementById('error-box').innerHTML += 'JavaScriptエラーが発生しました: ' + e.message + '<br>';
+});
+</script>
+
 <script type="module">
-import { initializeApp } from '[https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js](https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js)';
-import { getFirestore, doc, setDoc, onSnapshot } from '[https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js)';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYeTv14IRtpTCVrjcnk7I0wF-KCYoP0Os",
@@ -256,110 +267,4 @@ function renderRecipes() {
     const nI=document.createElement('input'); nI.type='text'; nI.placeholder='砂糖'; nI.style.width='120px'; nF.appendChild(nI);
     const pF=document.createElement('div'); pF.className='field'; pF.innerHTML='<label>ベーカーズ%</label>';
     const pI=document.createElement('input'); pI.type='number'; pI.placeholder='5'; pI.min='0'; pI.step='0.001'; pI.style.width='80px'; pF.appendChild(pI);
-    const aB=document.createElement('button'); aB.className='btn btn-primary'; aB.style.fontSize='12px'; aB.textContent='＋ 追加';
-    aB.addEventListener('click',()=>{ const n=nI.value.trim(); const p=parseFloat(pI.value); if(!n||isNaN(p)){showToast('材料名とベーカーズ%を入力してください');return;} state.recipes[ridx].ingredients.push({name:n,pct:Math.round(p*1000)/1000,isPercent:true}); saveState(); renderRecipes(); const rb=document.getElementById('rb-'+ridx); if(rb)rb.classList.add('open'); });
-    addRow.appendChild(nF); addRow.appendChild(pF); addRow.appendChild(aB); editArea.appendChild(addRow);
-    body.appendChild(editArea);
-
-    const prodArea = document.createElement('div'); prodArea.className = 'recipe-prod-area';
-    const calcRow=document.createElement('div'); calcRow.style.cssText='display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;';
-    const fF=document.createElement('div'); fF.className='field'; fF.innerHTML='<label>製作粉量</label>';
-    const fW=document.createElement('div'); fW.style.cssText='display:flex;align-items:center;gap:4px;';
-    const fI=document.createElement('input'); fI.type='number'; fI.placeholder=fmt(flour); fI.step='0.001'; fI.min='0.001'; fI.style.cssText='width:90px;font-size:13px;padding:6px 8px;border:1px solid #d0c8be;border-radius:8px;background:#fff;color:#1a1a1a;font-family:inherit;';
-    const gL=document.createElement('span'); gL.style.cssText='font-size:13px;color:#888;'; gL.textContent='g';
-    fW.appendChild(fI); fW.appendChild(gL); fF.appendChild(fW);
-    const cB=document.createElement('button'); cB.className='btn'; cB.style.fontSize='12px'; cB.textContent='🧮 計算';
-    const rD=document.createElement('div'); rD.style.cssText='width:100%;';
-    
-    cB.addEventListener('click',()=>{ 
-      const actual=parseFloat(fI.value); 
-      if(isNaN(actual)||actual<=0){showToast('製作粉量を入力してください');return;} 
-      let resHtml = '<ul class="calc-list">';
-      rec.ingredients.forEach(ri=>{
-        const calcQty = fmt(Math.round(actual*ri.pct/100*1000)/1000);
-        resHtml += `<li><span>${ri.name} <span style="font-size:12px;color:#888;">(${fmt(ri.pct)}%)</span></span><strong>${calcQty}g</strong></li>`;
-      });
-      resHtml += '</ul>';
-      rD.innerHTML = resHtml;
-    });
-    calcRow.appendChild(fF); calcRow.appendChild(cB);
-    
-    if (canMake) {
-      const uB=document.createElement('button'); uB.className='btn'; uB.style.fontSize='12px'; uB.textContent='👨‍🍳 製造して在庫を減らす';
-      uB.addEventListener('click',()=>{ 
-        const actual = parseFloat(fI.value) || flour;
-        rec.ingredients.forEach(ri=>{
-          if (ri.name === '水') return; 
-          const ing=state.ingredients.find(i=>i.name===ri.name); 
-          if(ing)ing.qty=Math.max(0,Math.round((ing.qty-actual*ri.pct/100)*1000)/1000);
-        }); 
-        saveState(); renderInventory(); renderRecipes(); showToast(`${fmt(actual)}g分で製造しました`); 
-      });
-      calcRow.appendChild(uB);
-    }
-    prodArea.appendChild(calcRow); prodArea.appendChild(rD);
-    body.appendChild(prodArea);
-    
-    header.addEventListener('click',()=>body.classList.toggle('open'));
-    card.appendChild(header); card.appendChild(body); list.appendChild(card);
-  });
-}
-
-function renderShop() {
-  const list=document.getElementById('shop-list');
-  const items=state.ingredients.filter(i=>getStatus(i.qty,i.min)!=='ok');
-  if(!items.length){list.innerHTML='<div class="empty-state">✅ 補充が必要な材料はありません</div>';return;}
-  list.innerHTML='';
-  items.forEach(ing=>{
-    const needed=Math.max(0,ing.min-ing.qty);
-    const card=document.createElement('div'); card.className='shop-card';
-    let linkBtnHtml = '';
-    if (ing.url) {
-      linkBtnHtml = `<a href="${ing.url}" target="_blank" class="link-btn">🔗 購入先を開く</a>`;
-    } else {
-      linkBtnHtml = `<span style="font-size:12px;color:#aaa;">※URL未登録</span>`;
-    }
-    card.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;"><div><div style="font-weight:500;font-size:14px;">${ing.name}</div><div style="font-size:12px;color:#888;margin-top:2px;">在庫 ${fmt(ing.qty)}g ／ 最低 ${fmt(ing.min)}g（不足 ${fmt(needed)}g）</div></div><div style="display:flex;align-items:center;gap:6px;">${linkBtnHtml}</div></div>`;
-    list.appendChild(card);
-  });
-}
-
-function render(){renderInventory();renderRecipes();}
-
-document.getElementById('add-ing-btn').addEventListener('click',()=>{
-  const name=document.getElementById('new-name').value.trim();
-  const qty=parseFloat(document.getElementById('new-qty').value)||0;
-  const min=parseFloat(document.getElementById('new-min').value)||0;
-  const url=document.getElementById('new-url').value.trim();
-  if(!name)return;
-  if(state.ingredients.find(i=>i.name===name)){showToast('同じ名前の材料があります');return;}
-  state.ingredients.push({name,qty,min,url}); saveState(); renderInventory();
-  ['new-name','new-qty','new-min','new-url'].forEach(id=>document.getElementById(id).value='');
-});
-
-document.getElementById('add-rec-btn').addEventListener('click',()=>{
-  const name=document.getElementById('recipe-name').value.trim();
-  const flour=parseFloat(document.getElementById('recipe-flour').value)||100;
-  if(!name)return;
-  state.recipes.push({name,flourBase:flour,ingredients:[]}); saveState(); renderRecipes();
-  document.getElementById('recipe-name').value='';
-});
-
-document.getElementById('copy-shop-btn').addEventListener('click',()=>{
-  const items=state.ingredients.filter(i=>getStatus(i.qty,i.min)!=='ok');
-  if(!items.length){showToast('補充が必要な材料はありません');return;}
-  navigator.clipboard.writeText('【購入リスト】\n'+items.map(i=>`・${i.name}：${fmt(Math.max(0,i.min-i.qty))}g不足`).join('\n'));
-  showToast('コピーしました');
-});
-
-setSyncStatus('loading','Firebaseに接続中…');
-onSnapshot(DOC_REF,(snap)=>{
-  if(snap.exists()){const d=snap.data(); state.ingredients=d.ingredients||[]; state.recipes=d.recipes||[];}
-  render(); setSyncStatus('ok','Firebaseと同期済み ✓');
-},(err)=>{
-  setSyncStatus('err','接続エラー: '+err.message);
-  showToast('Firebase接続エラー: '+err.message);
-});
-</script>
-</body>
-</html>
+    const aB=document.createElement('button'); aB.className='btn btn-primary'; aB.style.fontSize='12px'; aB.textContent='＋
