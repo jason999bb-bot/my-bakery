@@ -65,7 +65,6 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 .recipe-prod-area { background: #f4f6f8; padding: 12px; border: 1px dashed #d0d7de; border-radius: 8px; }
 .calc-list { list-style: none; margin-top: 12px; border-top: 1px solid #d0d7de; padding-top: 4px; }
 .calc-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px solid #e1e7ec; font-size: 14px; }
-.calc-list li:last-child { border-bottom: none; }
 .calc-list li strong { font-weight: 600; font-size: 15px; color: #1a1a1a; }
 .calc-list li span { color: #3a2a1a; }
 #error-box { display: none; background: #fde8e8; border: 1px solid #c62828; color: #c62828; padding: 10px; margin-bottom: 10px; border-radius: 8px; font-size: 12px; }
@@ -73,14 +72,13 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 </head>
 <body>
 <div class="container">
-  <h1>🍞 パン屋 在庫・レシピ管理 <span class="v-badge">更新版</span></h1>
-  
+  <h1>🍞 パン屋 在庫・レシピ管理</h1>
   <div id="error-box"></div>
 
   <div class="tabs">
-    <button class="tab active" onclick="showTab('inventory')">📦 在庫</button>
-    <button class="tab" onclick="showTab('recipes')">📖 レシピ</button>
-    <button class="tab" onclick="showTab('shop')">🛒 購入リスト</button>
+    <button class="tab active" data-tab="inventory">📦 在庫</button>
+    <button class="tab" data-tab="recipes">📖 レシピ</button>
+    <button class="tab" data-tab="shop">🛒 購入リスト</button>
   </div>
   <div class="sync-bar">
     <div class="sync-dot loading" id="sync-dot"></div>
@@ -96,14 +94,14 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
       <div class="field"><label>材料名</label><input id="new-name" type="text" placeholder="強力粉" style="width:90px" /></div>
       <div class="field"><label>在庫量(g)</label><input id="new-qty" type="number" placeholder="1000" style="width:70px" min="0" step="0.001" /></div>
       <div class="field"><label>最低量(g)</label><input id="new-min" type="number" placeholder="500" style="width:70px" min="0" step="0.001" /></div>
-      <div class="field"><label>購入URL (任意)</label><input id="new-url" type="text" placeholder="https://..." style="width:110px" /></div>
+      <div class="field"><label>購入URL</label><input id="new-url" type="text" placeholder="https://..." style="width:110px" /></div>
       <div class="field"><label>&nbsp;</label><button class="btn btn-primary" id="add-ing-btn">＋ 追加</button></div>
     </div>
     <div id="inventory-list"></div>
   </div>
 
   <div id="recipes" class="section">
-    <div class="section-note">粉量を基準にベーカーズ%で材料比率を設定できます。「水」は常に在庫無限として扱われます。</div>
+    <div class="section-note">粉量を基準にベーカーズ%で材料比率を設定できます。「水」は在庫無限扱いです。</div>
     <div class="input-row">
       <div class="field"><label>レシピ名</label><input id="recipe-name" type="text" placeholder="食パン" style="width:130px" /></div>
       <div class="field"><label>基準粉量(g)</label><input id="recipe-flour" type="number" placeholder="100" style="width:95px" min="0.001" step="0.001" value="100" /></div>
@@ -113,7 +111,7 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
   </div>
 
   <div id="shop" class="section">
-    <div class="section-note">在庫が最低量を下回っている材料と、登録した購入先リンクの一覧です。</div>
+    <div class="section-note">在庫が最低量を下回っている材料の一覧です。</div>
     <div id="shop-list"></div>
     <button class="btn" style="margin-top:8px;" id="copy-shop-btn">📋 リストをコピー</button>
   </div>
@@ -122,8 +120,9 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 
 <script>
 window.addEventListener('error', function(e) {
-  document.getElementById('error-box').style.display = 'block';
-  document.getElementById('error-box').innerHTML += 'JavaScriptエラーが発生しました: ' + e.message + '<br>';
+  const eb = document.getElementById('error-box');
+  eb.style.display = 'block';
+  eb.innerHTML = 'エラー発生: ' + e.message;
 });
 </script>
 
@@ -146,39 +145,27 @@ const DOC_REF = doc(db, 'bakery', 'data');
 let state = { ingredients: [], recipes: [] };
 let saving = false;
 
-function fmt(n) {
-  const num = parseFloat(n);
-  if (isNaN(num) || num === 0) return '0';
-  if (Number.isInteger(num)) return num.toString();
-  return num.toPrecision(6).replace(/\.?0+$/, '');
-}
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-function setSyncStatus(status, msg) {
-  document.getElementById('sync-dot').className = 'sync-dot ' + status;
-  document.getElementById('sync-status').textContent = msg;
-}
+// UIイベントの設定（onclickの代わりにここで制御）
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+    document.querySelectorAll('.section').forEach(s => s.classList.toggle('active', s.id === target));
+    if(target === 'shop') renderShop();
+  });
+});
+
+function fmt(n) { const num = parseFloat(n); return isNaN(num)?'0':num.toPrecision(6).replace(/\.?0+$/, ''); }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
+function setSyncStatus(status, msg) { document.getElementById('sync-dot').className = 'sync-dot ' + status; document.getElementById('sync-status').textContent = msg; }
 async function saveState() {
   if (saving) return; saving = true;
   setSyncStatus('loading', '保存中…');
   try { await setDoc(DOC_REF, state); setSyncStatus('ok', 'Firebaseに保存済み ✓'); }
-  catch(e) { setSyncStatus('err', '保存エラー'); showToast('保存に失敗しました: ' + e.message); }
+  catch(e) { setSyncStatus('err', '保存エラー'); showToast('保存失敗'); }
   saving = false;
 }
-window.showTab = function(id) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['inventory','recipes','shop'][i]===id));
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (id==='shop') renderShop();
-};
-function getStatus(qty, min) {
-  if (qty<=0) return 'out';
-  if (min>0 && qty<=min) return 'low';
-  return 'ok';
-}
+function getStatus(qty, min) { if (qty<=0) return 'out'; if (min>0 && qty<=min) return 'low'; return 'ok'; }
 
 function renderInventory() {
   const total = state.ingredients.length;
@@ -187,84 +174,78 @@ function renderInventory() {
   document.getElementById('low-count').textContent = low;
   const list = document.getElementById('inventory-list');
   list.innerHTML = '';
-  if (!total) { list.innerHTML='<div class="empty-state">材料を追加してください</div>'; return; }
   state.ingredients.forEach((ing, idx) => {
     const s = getStatus(ing.qty, ing.min);
     const pct = ing.min>0 ? Math.min(100,Math.round(ing.qty/ing.min*100)) : 100;
-    const labels = {ok:'十分',low:'少ない',out:'在庫なし'};
     const card = document.createElement('div'); card.className='card';
-    const top = document.createElement('div'); top.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;';
-    const nameSpan = document.createElement('span'); nameSpan.style.cssText='font-weight:500;font-size:14px;'; nameSpan.textContent=ing.name;
-    const rDiv = document.createElement('div'); rDiv.style.cssText='display:flex;align-items:center;gap:8px;';
-    const badge = document.createElement('span'); badge.className=`badge badge-${s}`; badge.textContent=labels[s];
-    const delBtn = document.createElement('button'); delBtn.className='btn btn-danger'; delBtn.textContent='削除';
-    delBtn.addEventListener('click', ()=>{ state.ingredients.splice(idx,1); saveState(); renderInventory(); showToast('削除しました'); });
-    rDiv.appendChild(badge); rDiv.appendChild(delBtn); top.appendChild(nameSpan); top.appendChild(rDiv);
-    const bottom = document.createElement('div'); bottom.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
-    const qc = document.createElement('div'); qc.className='qty-ctrl';
-    const mb = document.createElement('button'); mb.className='qty-btn'; mb.textContent='−';
-    mb.addEventListener('click',()=>{ state.ingredients[idx].qty=Math.max(0,Math.round((state.ingredients[idx].qty-1)*1000)/1000); saveState(); renderInventory(); });
-    const qi = document.createElement('input'); qi.className='qty-input'; qi.type='number'; qi.min='0'; qi.step='0.001'; qi.value=fmt(ing.qty);
-    qi.addEventListener('change',()=>{ const v=parseFloat(qi.value); if(!isNaN(v)&&v>=0){state.ingredients[idx].qty=Math.round(v*1000)/1000; saveState(); renderInventory();} });
-    const gl = document.createElement('span'); gl.style.cssText='font-size:13px;color:#888;'; gl.textContent='g';
-    const pb2 = document.createElement('button'); pb2.className='qty-btn'; pb2.textContent='＋';
-    pb2.addEventListener('click',()=>{ state.ingredients[idx].qty=Math.round((state.ingredients[idx].qty+1)*1000)/1000; saveState(); renderInventory(); });
-    qc.appendChild(mb); qc.appendChild(qi); qc.appendChild(gl); qc.appendChild(pb2);
-    const bar = document.createElement('div'); bar.className='progress-bar';
-    const fill = document.createElement('div'); fill.className=`progress-fill progress-${s}`; fill.style.width=pct+'%'; bar.appendChild(fill);
-    const ml = document.createElement('span'); ml.style.cssText='font-size:12px;color:#888;white-space:nowrap;'; ml.textContent=`最低 ${fmt(ing.min)}g`;
-    bottom.appendChild(qc); bottom.appendChild(bar); bottom.appendChild(ml);
-    card.appendChild(top); card.appendChild(bottom); list.appendChild(card);
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-weight:500;">${ing.name}</span>
+        <button class="btn btn-danger del-ing" data-idx="${idx}">削除</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="qty-ctrl"><button class="qty-btn dec-ing" data-idx="${idx}">−</button><input class="qty-input" value="${fmt(ing.qty)}" data-idx="${idx}"><button class="qty-btn inc-ing" data-idx="${idx}">＋</button></div>
+        <div class="progress-bar"><div class="progress-fill progress-${s}" style="width:${pct}%"></div></div>
+      </div>`;
+    list.appendChild(card);
   });
+  // 削除ボタン等にイベント再設定
+  list.querySelectorAll('.del-ing').forEach(b => b.addEventListener('click', (e) => { state.ingredients.splice(e.target.dataset.idx, 1); saveState(); render(); }));
+  list.querySelectorAll('.dec-ing').forEach(b => b.addEventListener('click', (e) => { const idx = e.target.dataset.idx; state.ingredients[idx].qty = Math.max(0, state.ingredients[idx].qty - 1); saveState(); render(); }));
+  list.querySelectorAll('.inc-ing').forEach(b => b.addEventListener('click', (e) => { const idx = e.target.dataset.idx; state.ingredients[idx].qty += 1; saveState(); render(); }));
 }
 
 function renderRecipes() {
   const list = document.getElementById('recipe-list');
   list.innerHTML = '';
-  if (!state.recipes.length) { list.innerHTML='<div class="empty-state">レシピを追加してください</div>'; return; }
   state.recipes.forEach((rec, ridx) => {
-    const flour = rec.flourBase||100;
-    const canMake = rec.ingredients.every(ri=>{ 
-      if (ri.name === '水') return true;
-      const ing=state.ingredients.find(i=>i.name===ri.name); 
-      return ing&&ing.qty>=flour*ri.pct/100; 
-    });
-    
     const card = document.createElement('div'); card.className='card';
-    const header = document.createElement('div'); header.style.cssText='display:flex;align-items:center;justify-content:space-between;cursor:pointer;';
-    const hL = document.createElement('div');
-    const tEl = document.createElement('div'); tEl.style.cssText='font-weight:500;font-size:15px;'; tEl.textContent=rec.name;
-    const mEl = document.createElement('div'); mEl.style.cssText='font-size:12px;color:#888;margin-top:2px;'; mEl.textContent=`基準粉量 ${fmt(flour)}g ／ 材料 ${rec.ingredients.length}種`;
-    hL.appendChild(tEl); hL.appendChild(mEl);
-    const hR = document.createElement('div'); hR.style.cssText='display:flex;align-items:center;gap:8px;';
-    const badge = document.createElement('span'); badge.className=`badge ${canMake?'badge-ok':'badge-low'}`; badge.textContent=canMake?'製造可':'材料不足';
-    const rdBtn = document.createElement('button'); rdBtn.className='btn btn-danger'; rdBtn.textContent='削除';
-    rdBtn.addEventListener('click', e=>{ e.stopPropagation(); state.recipes.splice(ridx,1); saveState(); renderRecipes(); showToast('レシピを削除しました'); });
-    hR.appendChild(badge); hR.appendChild(rdBtn); header.appendChild(hL); header.appendChild(hR);
-    
-    const body = document.createElement('div'); body.className='recipe-body'; body.id='rb-'+ridx;
-    const editArea = document.createElement('div'); editArea.className = 'recipe-edit-area';
-    const table = document.createElement('table'); table.className='ing-table';
-    table.innerHTML='<thead><tr><th style="width:40%">材料</th><th style="width:20%;text-align:right">%</th><th style="width:25%;text-align:right">量(g)</th><th style="width:15%"></th></tr></thead>';
-    const tbody = document.createElement('tbody');
-    if (!rec.ingredients.length) {
-      tbody.innerHTML='<tr><td colspan="4" style="color:#aaa;padding:8px 6px;font-size:13px;">材料を追加してください</td></tr>';
-    } else {
-      rec.ingredients.forEach((ri,ii)=>{
-        const ing=state.ingredients.find(i=>i.name===ri.name);
-        const needed=flour*ri.pct/100; 
-        const ok = (ri.name === '水') || (ing && ing.qty >= needed); 
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td style="${ok?'':'color:#c62828'}">${ri.name}</td><td style="text-align:right">${fmt(ri.pct)}%</td><td style="text-align:right">${fmt(needed)}g</td><td style="text-align:right"></td>`;
-        const idBtn=document.createElement('button'); idBtn.className='btn btn-danger'; idBtn.style.cssText='font-size:11px;padding:3px 8px;'; idBtn.textContent='削除';
-        idBtn.addEventListener('click',()=>{ state.recipes[ridx].ingredients.splice(ii,1); saveState(); renderRecipes(); const rb=document.getElementById('rb-'+ridx); if(rb)rb.classList.add('open'); showToast('材料を削除しました'); });
-        tr.querySelector('td:last-child').appendChild(idBtn); tbody.appendChild(tr);
-      });
-    }
-    table.appendChild(tbody); editArea.appendChild(table);
-    const addRow=document.createElement('div'); addRow.style.cssText='display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;margin-top:8px;';
-    const nF=document.createElement('div'); nF.className='field'; nF.innerHTML='<label>材料名</label>';
-    const nI=document.createElement('input'); nI.type='text'; nI.placeholder='砂糖'; nI.style.width='120px'; nF.appendChild(nI);
-    const pF=document.createElement('div'); pF.className='field'; pF.innerHTML='<label>ベーカーズ%</label>';
-    const pI=document.createElement('input'); pI.type='number'; pI.placeholder='5'; pI.min='0'; pI.step='0.001'; pI.style.width='80px'; pF.appendChild(pI);
-    const aB=document.createElement('button'); aB.className='btn btn-primary'; aB.style.fontSize='12px'; aB.textContent='＋
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:500;">${rec.name}</div><div style="font-size:12px;color:#888;">基準粉量 ${fmt(rec.flourBase)}g</div></div>
+        <button class="btn btn-danger del-rec" data-idx="${ridx}">削除</button>
+      </div>`;
+    list.appendChild(card);
+  });
+  list.querySelectorAll('.del-rec').forEach(b => b.addEventListener('click', (e) => { state.recipes.splice(e.target.dataset.idx, 1); saveState(); render(); }));
+}
+
+function renderShop() {
+  const list=document.getElementById('shop-list');
+  const items=state.ingredients.filter(i=>getStatus(i.qty,i.min)!=='ok');
+  list.innerHTML = items.length ? '' : '<div class="empty-state">✅ 補充が必要な材料はありません</div>';
+  items.forEach(ing=>{
+    const card=document.createElement('div'); card.className='shop-card';
+    card.innerHTML=`<div>${ing.name} (不足: ${fmt(Math.max(0,ing.min-ing.qty))}g)</div>`;
+    list.appendChild(card);
+  });
+}
+
+function render() { renderInventory(); renderRecipes(); }
+
+document.getElementById('add-ing-btn').addEventListener('click', () => {
+  const name=document.getElementById('new-name').value.trim();
+  const qty=parseFloat(document.getElementById('new-qty').value)||0;
+  const min=parseFloat(document.getElementById('new-min').value)||0;
+  if(!name) return;
+  state.ingredients.push({name,qty,min}); saveState(); render();
+  document.getElementById('new-name').value='';
+});
+
+document.getElementById('add-rec-btn').addEventListener('click', () => {
+  const name=document.getElementById('recipe-name').value.trim();
+  if(!name) return;
+  state.recipes.push({name,flourBase:100,ingredients:[]}); saveState(); render();
+});
+
+document.getElementById('copy-shop-btn').addEventListener('click', () => {
+  navigator.clipboard.writeText('購入リスト'); showToast('コピーしました');
+});
+
+onSnapshot(DOC_REF, (snap) => {
+  if(snap.exists()) { const d = snap.data(); state.ingredients = d.ingredients || []; state.recipes = d.recipes || []; }
+  render(); setSyncStatus('ok', '同期済み');
+});
+</script>
+</body>
+</html>
