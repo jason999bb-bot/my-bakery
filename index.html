@@ -66,6 +66,10 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #3a2a1a; color: #fff; font-size: 13px; padding: 9px 20px; border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; white-space: nowrap; font-family: inherit; }
 .toast.show { opacity: 1; }
+.confirm-overlay { position: fixed; inset: 0; background: rgba(30,20,10,0.35); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+.confirm-box { background: #fff; border-radius: 14px; padding: 20px 22px; max-width: 320px; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+.confirm-msg { font-size: 14px; color: #3a2a1a; margin-bottom: 16px; line-height: 1.5; }
+.confirm-btn-row { display: flex; justify-content: flex-end; gap: 8px; }
 .drag-handle { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; color: #c0b6a8; font-size: 16px; padding: 0 6px; line-height: 1; flex-shrink: 0; }
 .drag-handle:active { cursor: grabbing; }
 .sortable-item.dragging { opacity: 0.35; }
@@ -85,6 +89,71 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 .step-num { font-weight: 600; color: #6a4a8a; min-width: 16px; flex-shrink: 0; }
 .step-text { flex: 1; word-break: break-word; }
 .name-edit-wrap { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+.btn-danger-icon { padding: 5px 7px; display: inline-flex; align-items: center; justify-content: center; }
+.section-tag-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+.section-tag-row .section-tag { margin-bottom: 0; }
+.tag-actions { display: flex; align-items: center; gap: 2px; }
+.tag-icon-btn { background: none; border: 1px solid #d0c8be; border-radius: 7px; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; font-family: inherit; }
+.tag-icon-btn:hover { background: #f5f0e8; }
+.cart-link-btn { background: none; border: 1px solid #d0c8be; border-radius: 8px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; font-family: inherit; flex-shrink: 0; }
+.cart-link-btn:hover { background: #f5f0e8; }
+.cart-link-btn.has-link { border-color: #8a6a4a; background: #f7f1e8; }
+/* --- calendar --- */
+.calendar-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
+.calendar-nav-btn { background: none; border: 1px solid #d0c8be; border-radius: 8px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; color: #3a2a1a; font-family: inherit; }
+.calendar-nav-btn:hover { background: #f5f0e8; }
+.calendar-date-label { font-size: 14px; font-weight: 600; color: #3a2a1a; }
+.recipe-chip-row { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px; margin-bottom: 4px; }
+.recipe-chip { flex-shrink: 0; background: #fff; border: 1px solid #d0c8be; border-radius: 999px; padding: 7px 14px; font-size: 12.5px; color: #3a2a1a; cursor: grab; user-select: none; touch-action: none; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.recipe-chip:active { cursor: grabbing; }
+.recipe-chip.dragging-ghost { position: fixed; z-index: 500; pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,0.25); opacity: 0.92; }
+.calendar-view-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+.calendar-view-tab { flex: 1; background: #fff; border: 1px solid #d0c8be; padding: 7px 0; font-size: 12.5px; cursor: pointer; color: #8a6a4a; font-family: inherit; }
+.calendar-view-tab:first-child { border-radius: 8px 0 0 8px; }
+.calendar-view-tab:last-child { border-radius: 0 8px 8px 0; }
+.calendar-view-tab:not(:first-child) { border-left: none; }
+.calendar-view-tab.active { background: #3a2a1a; color: #fff; border-color: #3a2a1a; }
+.calendar-wrap { display: flex; border: 1px solid #ede8e0; border-radius: 12px; overflow: hidden; background: #fff; }
+.calendar-hours { width: 40px; flex-shrink: 0; border-right: 1px solid #ede8e0; background: #fbf8f3; }
+.calendar-hour-label { font-size: 10px; color: #aaa; text-align: right; padding-right: 5px; box-sizing: border-box; border-top: 1px solid #f1ece3; }
+.calendar-days-row { display: flex; flex: 1; overflow-x: auto; overflow-y: visible; position: relative; }
+.calendar-day-col { position: relative; flex: 1 0 100%; border-right: 1px solid #ede8e0; }
+.calendar-day-col:last-child { border-right: none; }
+.calendar-days-row.mode-week .calendar-day-col { flex: 1 0 92px; min-width: 92px; }
+.calendar-day-col-header { text-align: center; font-size: 11px; padding: 5px 2px; border-bottom: 1px solid #ede8e0; background: #fbf8f3; color: #3a2a1a; font-weight: 600; position: sticky; top: 0; z-index: 3; }
+.calendar-day-col-header.is-today { color: #c98a44; }
+.calendar-grid { position: relative; background-image: repeating-linear-gradient(to bottom, #f1ece3, #f1ece3 1px, transparent 1px, transparent var(--hour-px)); }
+.calendar-grid.drop-hover { background-color: #f7f1e8; }
+.calendar-event { position: absolute; left: 3px; right: 3px; border-radius: 8px; background: linear-gradient(135deg,#e8cfa0,#d9a441); border: 1px solid #a97a2f; padding: 4px 7px; font-size: 11.5px; color: #4a2f0a; overflow: hidden; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.calendar-event.expanded { z-index: 30; width: 240px; max-width: 80vw; right: auto; box-shadow: 0 6px 18px rgba(0,0,0,0.28); overflow: visible; }
+.calendar-event.blinking { animation: evBlink 1s infinite; }
+@keyframes evBlink { 0%,100%{ box-shadow:0 1px 3px rgba(0,0,0,0.12); border-color:#a97a2f;} 50%{ box-shadow:0 0 0 3px rgba(229,57,53,0.55); border-color:#e53935; } }
+.calendar-event-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
+.calendar-event-name { font-weight: 600; font-size: 12px; line-height: 1.3; }
+.calendar-event-amount { font-size: 11px; color: #5a3f18; cursor: pointer; }
+.calendar-event-time { font-size: 10.5px; color: #6a4a1a; cursor: pointer; }
+.calendar-event-time input { width: 52px; font-size: 11px; padding: 2px 3px; border: 1px solid #a97a2f; border-radius: 5px; font-family: inherit; }
+.calendar-event-del { position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; background: rgba(255,255,255,0.75); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.batch-amount-input { width: 60px; font-size: 11.5px; padding: 3px 5px; border: 1px solid #d0c8be; border-radius: 6px; font-family: inherit; }
+.event-steps-gauge { margin-top: 6px; border-top: 1px solid rgba(74,47,10,0.25); padding-top: 4px; }
+.gauge-step { border-bottom: 1px solid rgba(74,47,10,0.15); padding: 4px 2px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.gauge-step:last-child { border-bottom: none; }
+.gauge-step-num { font-weight: 700; min-width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.65); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; color: #6a4a1a; }
+.gauge-step-num.active-step { background: #e53935; color: #fff; animation: evBlink2 1s infinite; }
+@keyframes evBlink2 { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.gauge-step-text { flex: 1; font-size: 11.5px; line-height: 1.3; }
+.gauge-step-timer { font-size: 11px; font-weight: 700; color: #e53935; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.gauge-step-done { color: #2e7d32; font-size: 10.5px; flex-shrink: 0; }
+.gauge-step-dur { font-size: 10px; color: #6a4a1a; opacity: 0.75; flex-shrink: 0; }
+.month-weekday-header { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
+.month-weekday-header div { text-align: center; font-size: 11px; color: #888; padding: 4px 0; }
+.month-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; background: #ede8e0; border: 1px solid #ede8e0; border-radius: 12px; overflow: hidden; }
+.month-cell { background: #fff; min-height: 64px; padding: 4px; font-size: 10.5px; cursor: pointer; }
+.month-cell:hover { background: #fbf8f3; }
+.month-cell.other-month { background: #fbfaf7; color: #ccc; }
+.month-cell.is-today .month-cell-date { color: #fff; background: #c98a44; }
+.month-cell-date { font-weight: 600; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; margin-bottom: 3px; }
+.month-cell-event { font-size: 9.5px; background: #e8cfa0; border-radius: 4px; padding: 1px 4px; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #4a2f0a; }
 </style>
 </head>
 <body>
@@ -100,9 +169,18 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
     <line x1="20" y1="9" x2="36" y2="25" stroke="#7a4a1f" stroke-width="2.5" stroke-linecap="round"/>
     <line x1="35" y1="7" x2="51" y2="23" stroke="#7a4a1f" stroke-width="2.5" stroke-linecap="round"/>
     <line x1="50" y1="7" x2="66" y2="23" stroke="#7a4a1f" stroke-width="2.5" stroke-linecap="round"/>
-    <line x1="65" y1="9" x2="80" y2="25" stroke="#7a4a1f" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="65" y1="9" x2="81" y2="25" stroke="#7a4a1f" stroke-width="2.5" stroke-linecap="round"/>
   </svg>パン屋 在庫・レシピ管理</h1>
   <div class="tabs">
+    <button class="tab" onclick="showTab('calendar')"><svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-3px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2.5" y="4" width="19" height="17.5" rx="2.2" fill="#faf3e8" stroke="#8a6a4a" stroke-width="1.5"/>
+      <line x1="2.5" y1="9" x2="21.5" y2="9" stroke="#8a6a4a" stroke-width="1.5"/>
+      <line x1="7" y1="2" x2="7" y2="6" stroke="#c98a44" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="17" y1="2" x2="17" y2="6" stroke="#c98a44" stroke-width="1.6" stroke-linecap="round"/>
+      <rect x="5.5" y="12" width="4" height="3.4" rx="0.8" fill="#d9a441"/>
+      <rect x="10.7" y="12" width="4" height="3.4" rx="0.8" fill="#e8cfa0"/>
+      <rect x="15.9" y="12" width="4" height="3.4" rx="0.8" fill="#e8cfa0"/>
+    </svg>カレンダー</button>
     <button class="tab active" onclick="showTab('inventory')"><svg viewBox="0 0 24 32" width="15" height="19" style="vertical-align:-4px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg">
       <line x1="12" y1="30" x2="12" y2="5" stroke="#8a6a4a" stroke-width="2" stroke-linecap="round"/>
       <g fill="#d9a441" stroke="#a97a2f" stroke-width="0.5">
@@ -135,6 +213,21 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
   <div class="sync-bar">
     <div class="sync-dot loading" id="sync-dot"></div>
     <span id="sync-status">Firebaseに接続中…</span>
+  </div>
+  <div id="calendar" class="section">
+    <div class="section-note">レシピをつまんでカレンダーにドラッグ&ドロップすると、作業予定がゲージとして配置されます（10分刻み）。ゲージをタップすると手順が中に表示されます。</div>
+    <div class="recipe-chip-row" id="calendar-chip-row"></div>
+    <div class="calendar-view-tabs" id="calendar-view-tabs">
+      <button class="calendar-view-tab" data-mode="day">日</button>
+      <button class="calendar-view-tab" data-mode="week">週</button>
+      <button class="calendar-view-tab" data-mode="month">月</button>
+    </div>
+    <div class="calendar-nav">
+      <button class="calendar-nav-btn" id="cal-prev">‹</button>
+      <div class="calendar-date-label" id="calendar-date-label"></div>
+      <button class="calendar-nav-btn" id="cal-next">›</button>
+    </div>
+    <div id="calendar-body"></div>
   </div>
   <div id="inventory" class="section active">
     <div class="grid2">
@@ -170,7 +263,12 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
   <div id="shop" class="section">
     <div class="section-note">在庫が最低量を下回っている材料の一覧です。</div>
     <div id="shop-list"></div>
-    <button class="btn" style="margin-top:8px;" id="copy-shop-btn">📋 リストをコピー</button>
+    <button class="btn" style="margin-top:8px;" id="copy-shop-btn"><svg viewBox="0 0 20 20" width="13" height="13" style="vertical-align:-2px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="4" width="11" height="13" rx="1.6" fill="#faf3e8" stroke="#8a6a4a" stroke-width="1.5"/>
+      <rect x="3" y="7" width="11" height="13" rx="1.6" fill="#fff" stroke="#8a6a4a" stroke-width="1.5"/>
+      <line x1="6" y1="12" x2="11" y2="12" stroke="#c98a44" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="6" y1="16" x2="11" y2="16" stroke="#c98a44" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>リストをコピー</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -190,13 +288,34 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
 const DOC_REF = doc(db, 'bakery', 'data');
-let state = { ingredients: [], recipes: [], groups: [], ingredientGroups: [] };
+let state = { ingredients: [], recipes: [], groups: [], ingredientGroups: [], calendar: { events: [] } };
 let saving = false;
 let editingRecipeId = null;
 let editingIngredientId = null;
+let editingIngredientLinkId = null;
 let editingGroupId = null;
 let editingIngredientGroupId = null;
+let editingStepTimeKey = null;
 let openRecipeIds = new Set();
+let ingredientClipboard = null;
+let stepClipboard = null;
+/* --- calendar state --- */
+let calendarViewDate = new Date();
+let calendarViewMode = 'week'; // 'day' | 'week' | 'month'
+let expandedEventId = null;
+let editingBatchEventId = null;
+let editingTimeEventId = null;
+const CAL_START_HOUR = 0;
+const CAL_END_HOUR = 24;
+const CAL_PX_PER_MIN = 1.4;
+function todayKey(d) { const y=d.getFullYear(),m=(d.getMonth()+1).toString().padStart(2,'0'),dd=d.getDate().toString().padStart(2,'0'); return `${y}-${m}-${dd}`; }
+function minutesToHHMM(mins) { const h=Math.floor(mins/60).toString().padStart(2,'0'), m=(mins%60).toString().padStart(2,'0'); return `${h}:${m}`; }
+function hhmmToMinutes(str) { const m=/^(\d{1,2}):(\d{2})$/.exec((str||'').trim()); if(!m) return null; const h=parseInt(m[1],10), mi=parseInt(m[2],10); if(isNaN(h)||isNaN(mi)||h<0||h>23||mi<0||mi>59) return null; return h*60+mi; }
+function addDays(d, n) { const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function startOfWeek(d) { const r=new Date(d); r.setDate(r.getDate()-r.getDay()); r.setHours(0,0,0,0); return r; }
+function isSameDate(a,b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function stepDurationMinutes(step) { const v = step && step.minutes; return (v && v>0) ? v : 30; }
+function recipeTotalMinutes(rec) { if(!rec || !rec.steps || !rec.steps.length) return 30; return rec.steps.reduce((sum,s)=>sum+stepDurationMinutes(s),0); }
 
 function genId() { return 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 function ensureIds() {
@@ -209,6 +328,17 @@ function ensureIds() {
     if (!r.id) r.id = genId();
     if (r.groupId === undefined) r.groupId = null;
     if (!r.steps) r.steps = [];
+    r.steps = r.steps.map(s => typeof s === 'string' ? {text:s, minutes:null} : s);
+  });
+  if (!state.calendar) state.calendar = { events: [] };
+  if (!state.calendar.events) state.calendar.events = [];
+  state.calendar.events.forEach(ev => {
+    if (!ev.id) ev.id = genId();
+    if (ev.batchAmount === undefined) ev.batchAmount = null;
+    if (ev.activeStepIndex === undefined) ev.activeStepIndex = null;
+    if (ev.stepStartedAt === undefined) ev.stepStartedAt = null;
+    if (ev.stepDurationMs === undefined) ev.stepDurationMs = null;
+    if (!ev.doneSteps) ev.doneSteps = [];
   });
 }
 /* 汎用ドラッグ&ドロップ（マウス左クリック・スマホタッチ両対応、Pointer Eventsで統一） */
@@ -242,6 +372,20 @@ function attachDragHandle(handle, item, opts) {
   });
 }
 
+function delIconSVG(size) {
+  size = size || 13;
+  return `<svg viewBox="0 0 20 20" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8.3" fill="#fde8e8" stroke="#e57373" stroke-width="1.4"/><line x1="6" y1="10" x2="14" y2="10" stroke="#c62828" stroke-width="1.9" stroke-linecap="round"/></svg>`;
+}
+function copyIconSVG() {
+  return '<svg viewBox="0 0 20 20" width="13" height="13" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="7" width="10" height="11" rx="1.5" fill="#faf3e8" stroke="#8a6a4a" stroke-width="1.3"/><rect x="3" y="3" width="10" height="11" rx="1.5" fill="#fff" stroke="#8a6a4a" stroke-width="1.3"/></svg>';
+}
+function pasteIconSVG() {
+  return '<svg viewBox="0 0 20 20" width="13" height="13" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="12" height="15" rx="1.6" fill="#faf3e8" stroke="#8a6a4a" stroke-width="1.3"/><rect x="7.5" y="1.5" width="5" height="2.6" rx="0.8" fill="#8a6a4a"/><line x1="7" y1="10" x2="13" y2="10" stroke="#8a6a4a" stroke-width="1.2" stroke-linecap="round"/><line x1="7" y1="13" x2="13" y2="13" stroke="#8a6a4a" stroke-width="1.2" stroke-linecap="round"/></svg>';
+}
+function makeDeleteIconBtn(title) {
+  const b = document.createElement('button'); b.className='btn btn-danger btn-danger-icon'; b.title=title||'削除'; b.innerHTML=delIconSVG();
+  return b;
+}
 function fmt(n) {
   const num = parseFloat(n);
   if (isNaN(num) || num === 0) return '0';
@@ -253,6 +397,22 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
+function showConfirm(message, onConfirm) {
+  const overlay = document.createElement('div'); overlay.className='confirm-overlay';
+  const box = document.createElement('div'); box.className='confirm-box';
+  const msg = document.createElement('div'); msg.className='confirm-msg'; msg.textContent=message;
+  const btnRow = document.createElement('div'); btnRow.className='confirm-btn-row';
+  const cancelBtn = document.createElement('button'); cancelBtn.className='btn'; cancelBtn.textContent='キャンセル';
+  const okBtn = document.createElement('button'); okBtn.className='btn btn-danger'; okBtn.style.cssText='font-size:13px;padding:7px 16px;'; okBtn.textContent='削除する';
+  const close = () => { overlay.remove(); };
+  cancelBtn.addEventListener('click', close);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) close(); });
+  okBtn.addEventListener('click', () => { close(); onConfirm(); });
+  btnRow.appendChild(cancelBtn); btnRow.appendChild(okBtn);
+  box.appendChild(msg); box.appendChild(btnRow);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
 function setSyncStatus(status, msg) {
   document.getElementById('sync-dot').className = 'sync-dot ' + status;
   document.getElementById('sync-status').textContent = msg;
@@ -260,15 +420,16 @@ function setSyncStatus(status, msg) {
 async function saveState() {
   if (saving) return; saving = true;
   setSyncStatus('loading', '保存中…');
-  try { await setDoc(DOC_REF, state); setSyncStatus('ok', 'Firebaseに保存済み ✓'); }
+  try { await setDoc(DOC_REF, state); setSyncStatus('ok', 'Firebaseに保存済み'); }
   catch(e) { setSyncStatus('err', '保存エラー'); showToast('保存に失敗しました: ' + e.message); }
   saving = false;
 }
 window.showTab = function(id) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['inventory','recipes','shop'][i]===id));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['calendar','inventory','recipes','shop'][i]===id));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if (id==='shop') renderShop();
+  if (id==='calendar') renderCalendar();
 };
 const INFINITE_INGREDIENTS = ['水'];
 function isInfiniteIngredient(name) {
@@ -310,8 +471,8 @@ function buildIngredientCard(ing) {
   }
   const rDiv = document.createElement('div'); rDiv.style.cssText='display:flex;align-items:center;gap:8px;flex-shrink:0;';
   const badge = document.createElement('span'); badge.className=`badge badge-${s}`; badge.textContent=labels[s];
-  const delBtn = document.createElement('button'); delBtn.className='btn btn-danger'; delBtn.textContent='削除';
-  delBtn.addEventListener('click', ()=>{ state.ingredients = state.ingredients.filter(i=>i.id!==ing.id); saveState(); renderInventory(); showToast('削除しました'); });
+  const delBtn = makeDeleteIconBtn('材料を削除');
+  delBtn.addEventListener('click', ()=>{ showConfirm(`「${ing.name}」を削除しますか？`, ()=>{ state.ingredients = state.ingredients.filter(i=>i.id!==ing.id); saveState(); renderInventory(); showToast('削除しました'); }); });
   rDiv.appendChild(badge); rDiv.appendChild(delBtn); top.appendChild(nameWrap); top.appendChild(rDiv);
   const bottom = document.createElement('div'); bottom.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
   const qc = document.createElement('div'); qc.className='qty-ctrl';
@@ -325,13 +486,30 @@ function buildIngredientCard(ing) {
   qc.appendChild(mb); qc.appendChild(qi); qc.appendChild(gl); qc.appendChild(pb2);
   const bar = document.createElement('div'); bar.className='progress-bar';
   const fill = document.createElement('div'); fill.className=`progress-fill progress-${s}`; fill.style.width=pct+'%'; bar.appendChild(fill);
-  const ml = document.createElement('span'); ml.style.cssText='font-size:12px;color:#888;white-space:nowrap;'; ml.textContent=`最低 ${fmt(ing.min)}g`;
+  const ml = document.createElement('span'); ml.style.cssText='font-size:12px;color:#888;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;';
+  const mlLabel = document.createElement('span'); mlLabel.textContent='最低';
+  const minInput = document.createElement('input'); minInput.type='number'; minInput.min='0'; minInput.step='0.001'; minInput.value=fmt(ing.min); minInput.style.cssText='width:58px;font-size:12px;padding:3px 5px;border:1px solid #d0c8be;border-radius:6px;font-family:inherit;color:#1a1a1a;background:#fff;';
+  minInput.addEventListener('change',()=>{ const v=parseFloat(minInput.value); if(!isNaN(v)&&v>=0){ing.min=Math.round(v*1000)/1000; saveState(); renderInventory();} });
+  const mlUnit = document.createElement('span'); mlUnit.textContent='g';
+  ml.appendChild(mlLabel); ml.appendChild(minInput); ml.appendChild(mlUnit);
   bottom.appendChild(qc); bottom.appendChild(bar); bottom.appendChild(ml);
   const linkRow = document.createElement('div'); linkRow.style.cssText='display:flex;align-items:center;gap:6px;margin-top:8px;';
-  const linkLabel = document.createElement('span'); linkLabel.style.cssText='font-size:11px;color:#888;white-space:nowrap;'; linkLabel.textContent='購入リンク';
-  const linkInput = document.createElement('input'); linkInput.type='text'; linkInput.value=ing.link||''; linkInput.placeholder='https://...'; linkInput.style.cssText='flex:1;font-size:12px;padding:5px 8px;border:1px solid #d0c8be;border-radius:8px;background:#fff;color:#1a1a1a;font-family:inherit;';
-  linkInput.addEventListener('change',()=>{ ing.link=linkInput.value.trim(); saveState(); showToast('購入リンクを保存しました'); });
-  linkRow.appendChild(linkLabel); linkRow.appendChild(linkInput);
+  const cartSVG = '<svg viewBox="0 0 26 24" width="15" height="14" xmlns="http://www.w3.org/2000/svg"><path d="M2,2 L5,2 L8.2,15 L19.5,15 Q20.3,15 20.5,14.2 L23,6 L6.5,6" fill="none" stroke="#8a5a2a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.5" cy="20" r="1.8" fill="#8a5a2a"/><circle cx="18" cy="20" r="1.8" fill="#8a5a2a"/></svg>';
+  if (editingIngredientLinkId === ing.id) {
+    const linkInput = document.createElement('input'); linkInput.type='text'; linkInput.value=ing.link||''; linkInput.placeholder='https://...'; linkInput.style.cssText='flex:1;font-size:12px;padding:5px 8px;border:1px solid #d0c8be;border-radius:8px;background:#fff;color:#1a1a1a;font-family:inherit;';
+    const linkSaveBtn = document.createElement('button'); linkSaveBtn.className='btn btn-primary'; linkSaveBtn.style.cssText='font-size:11px;padding:5px 9px;'; linkSaveBtn.textContent='保存';
+    const linkCancelBtn = document.createElement('button'); linkCancelBtn.className='btn'; linkCancelBtn.style.cssText='font-size:11px;padding:5px 9px;'; linkCancelBtn.textContent='閉じる';
+    const commitLink=()=>{ ing.link=linkInput.value.trim(); editingIngredientLinkId=null; saveState(); renderInventory(); showToast('購入リンクを保存しました'); };
+    linkSaveBtn.addEventListener('click', commitLink);
+    linkInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); commitLink(); } });
+    linkCancelBtn.addEventListener('click', ()=>{ editingIngredientLinkId=null; renderInventory(); });
+    linkRow.appendChild(linkInput); linkRow.appendChild(linkSaveBtn); linkRow.appendChild(linkCancelBtn);
+  } else {
+    const cartBtn = document.createElement('button'); cartBtn.className='cart-link-btn'+(ing.link?' has-link':''); cartBtn.title=ing.link?'購入リンクを編集':'購入リンクを登録'; cartBtn.innerHTML=cartSVG;
+    cartBtn.addEventListener('click', ()=>{ editingIngredientLinkId=ing.id; renderInventory(); });
+    const linkHint = document.createElement('span'); linkHint.style.cssText='font-size:11px;color:#aaa;'; linkHint.textContent = ing.link ? '購入リンク登録済み' : '購入リンク未登録';
+    linkRow.appendChild(cartBtn); linkRow.appendChild(linkHint);
+  }
   card.appendChild(top); card.appendChild(bottom); card.appendChild(linkRow);
   attachDragHandle(handle, card, {
     containerSelector: '.sortable-list-ingredients',
@@ -384,11 +562,13 @@ function renderInventory() {
       gTitle.addEventListener('click', ()=>{ editingIngredientGroupId=group.id; renderInventory(); });
       gHL.appendChild(gTitle);
     }
-    const gDel = document.createElement('button'); gDel.className='btn btn-danger'; gDel.textContent='グループ削除';
+    const gDel = makeDeleteIconBtn('グループ削除');
     gDel.addEventListener('click', ()=>{
-      state.ingredients.forEach(i=>{ if(i.groupId===group.id) i.groupId=null; });
-      state.ingredientGroups = state.ingredientGroups.filter(g=>g.id!==group.id);
-      saveState(); renderInventory(); showToast('グループを削除しました');
+      showConfirm(`グループ「${group.name}」を削除しますか？（中の材料は未分類に戻ります）`, ()=>{
+        state.ingredients.forEach(i=>{ if(i.groupId===group.id) i.groupId=null; });
+        state.ingredientGroups = state.ingredientGroups.filter(g=>g.id!==group.id);
+        saveState(); renderInventory(); showToast('グループを削除しました');
+      });
     });
     gHeader.appendChild(gHL); gHeader.appendChild(gDel);
     groupCard.appendChild(gHeader);
@@ -465,8 +645,8 @@ function buildRecipeCard(rec) {
   hL.appendChild(handle); hL.appendChild(hLText);
   const hR = document.createElement('div'); hR.style.cssText='display:flex;align-items:center;gap:6px;flex-shrink:0;';
   const badge = document.createElement('span'); badge.className=`badge ${canMake?'badge-ok':'badge-low'}`; badge.textContent=canMake?'製造可':'材料不足';
-  const rdBtn = document.createElement('button'); rdBtn.className='btn btn-danger'; rdBtn.textContent='削除';
-  rdBtn.addEventListener('click', e=>{ e.stopPropagation(); state.recipes = state.recipes.filter(r=>r.id!==rec.id); saveState(); renderRecipes(); showToast('レシピを削除しました'); });
+  const rdBtn = makeDeleteIconBtn('レシピを削除');
+  rdBtn.addEventListener('click', e=>{ e.stopPropagation(); showConfirm(`レシピ「${rec.name}」を削除しますか？`, ()=>{ state.recipes = state.recipes.filter(r=>r.id!==rec.id); saveState(); renderRecipes(); showToast('レシピを削除しました'); }); });
   hR.appendChild(badge); hR.appendChild(rdBtn);
   header.appendChild(hL); header.appendChild(hR);
 
@@ -484,15 +664,30 @@ function buildRecipeCard(rec) {
       const needed=flour*ri.pct/100; const ok=infinite||(ing&&ing.qty>=needed);
       const tr=document.createElement('tr');
       tr.innerHTML=`<td style="${ok?'':'color:#c62828'}">${ri.name}</td><td style="text-align:right">${fmt(ri.pct)}%</td><td style="text-align:right">${fmt(needed)}g</td><td style="text-align:right"></td>`;
-      const idBtn=document.createElement('button'); idBtn.className='btn btn-danger'; idBtn.style.cssText='font-size:11px;padding:3px 8px;'; idBtn.textContent='削除';
-      idBtn.addEventListener('click',()=>{ rec.ingredients.splice(ii,1); openRecipeIds.add(rec.id); saveState(); renderRecipes(); showToast('材料を削除しました'); });
+      const idBtn=makeDeleteIconBtn('材料を削除'); idBtn.style.cssText='padding:3px 6px;';
+      idBtn.addEventListener('click',()=>{ showConfirm(`「${ri.name}」をレシピから削除しますか？`, ()=>{ rec.ingredients.splice(ii,1); openRecipeIds.add(rec.id); saveState(); renderRecipes(); showToast('材料を削除しました'); }); });
       tr.querySelector('td:last-child').appendChild(idBtn); tbody.appendChild(tr);
     });
   }
   table.appendChild(tbody);
   const editSection=document.createElement('div'); editSection.className='ing-edit-section';
-  const editTag=document.createElement('span'); editTag.className='section-tag'; editTag.textContent='✏️ 材料編集';
-  editSection.appendChild(editTag); editSection.appendChild(table);
+  const editTagRow=document.createElement('div'); editTagRow.className='section-tag-row';
+  const editTag=document.createElement('span'); editTag.className='section-tag';
+  editTag.innerHTML = '<svg viewBox="0 0 20 20" width="12" height="12" style="vertical-align:-1px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg"><path d="M3,17 L3,14.2 L12.8,4.4 L15.6,7.2 L5.8,17 Z" fill="#faf3e8" stroke="#8a6a4a" stroke-width="1.3" stroke-linejoin="round"/><line x1="11.3" y1="5.9" x2="14.1" y2="8.7" stroke="#8a6a4a" stroke-width="1.3"/><line x1="3" y1="17" x2="5.8" y2="17" stroke="#8a6a4a" stroke-width="1.3"/></svg>材料編集';
+  const editTagActions=document.createElement('div'); editTagActions.className='tag-actions';
+  const ingCopyBtn=document.createElement('button'); ingCopyBtn.type='button'; ingCopyBtn.className='tag-icon-btn'; ingCopyBtn.title='材料をコピー'; ingCopyBtn.innerHTML=copyIconSVG();
+  ingCopyBtn.addEventListener('click',()=>{ ingredientClipboard=(rec.ingredients||[]).map(x=>({...x})); showToast(`材料をコピーしました（${ingredientClipboard.length}件）`); });
+  const ingPasteBtn=document.createElement('button'); ingPasteBtn.type='button'; ingPasteBtn.className='tag-icon-btn'; ingPasteBtn.title='材料をペースト'; ingPasteBtn.innerHTML=pasteIconSVG();
+  ingPasteBtn.addEventListener('click',()=>{
+    if(!ingredientClipboard || !ingredientClipboard.length){ showToast('コピーした材料がありません'); return; }
+    showConfirm(`コピーした材料（${ingredientClipboard.length}件）をこのレシピに追加しますか？`, ()=>{
+      rec.ingredients = (rec.ingredients||[]).concat(ingredientClipboard.map(x=>({...x})));
+      openRecipeIds.add(rec.id); saveState(); renderRecipes(); showToast('材料を貼り付けました');
+    });
+  });
+  editTagActions.appendChild(ingCopyBtn); editTagActions.appendChild(ingPasteBtn);
+  editTagRow.appendChild(editTag); editTagRow.appendChild(editTagActions);
+  editSection.appendChild(editTagRow); editSection.appendChild(table);
   body.appendChild(editSection);
   const addRow=document.createElement('div'); addRow.style.cssText='display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;margin-top:8px;';
   const nF=document.createElement('div'); nF.className='field'; nF.innerHTML='<label>材料名</label>';
@@ -503,7 +698,8 @@ function buildRecipeCard(rec) {
   aB.addEventListener('click',()=>{ const n=nI.value.trim(); const p=parseFloat(pI.value); if(!n||isNaN(p)){showToast('材料名とベーカーズ%を入力してください');return;} rec.ingredients.push({name:n,pct:Math.round(p*1000)/1000,isPercent:true}); openRecipeIds.add(rec.id); saveState(); renderRecipes(); });
   addRow.appendChild(nF); addRow.appendChild(pF); addRow.appendChild(aB); editSection.appendChild(addRow);
   const makeSection=document.createElement('div'); makeSection.className='ing-make-section';
-  const makeTag=document.createElement('span'); makeTag.className='section-tag'; makeTag.textContent='👨‍🍳 製作';
+  const makeTag=document.createElement('span'); makeTag.className='section-tag';
+  makeTag.innerHTML = '<svg viewBox="0 0 22 22" width="14" height="14" style="vertical-align:-2px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg"><path d="M6,20 L16,20 L16.6,12.5 Q19.5,12 19.5,8.6 Q19.5,5.2 16.4,4.8 Q16,2 11,2 Q6,2 5.6,4.8 Q2.5,5.2 2.5,8.6 Q2.5,12 5.4,12.5 Z" fill="#ffffff" stroke="#8a6a4a" stroke-width="1.4" stroke-linejoin="round"/><line x1="5.6" y1="12.6" x2="16.4" y2="12.6" stroke="#8a6a4a" stroke-width="1.2"/><rect x="6" y="17.4" width="10" height="2.6" fill="#f0e8da" stroke="#8a6a4a" stroke-width="1.2"/></svg>製作';
   makeSection.appendChild(makeTag);
   const calcRow=document.createElement('div'); calcRow.style.cssText='display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;';
   const fF=document.createElement('div'); fF.className='field'; fF.innerHTML='<label>製作粉量</label>';
@@ -511,7 +707,8 @@ function buildRecipeCard(rec) {
   const fI=document.createElement('input'); fI.type='number'; fI.placeholder=fmt(flour); fI.step='0.001'; fI.min='0.001'; fI.style.cssText='width:90px;font-size:13px;padding:6px 8px;border:1px solid #d0c8be;border-radius:8px;background:#fff;color:#1a1a1a;font-family:inherit;';
   const gL=document.createElement('span'); gL.style.cssText='font-size:13px;color:#888;'; gL.textContent='g';
   fW.appendChild(fI); fW.appendChild(gL); fF.appendChild(fW);
-  const cB=document.createElement('button'); cB.className='btn'; cB.style.fontSize='12px'; cB.textContent='🧮 計算';
+  const cB=document.createElement('button'); cB.className='btn'; cB.style.fontSize='12px';
+  cB.innerHTML = '<svg viewBox="0 0 20 20" width="12" height="12" style="vertical-align:-1px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="2" width="14" height="16" rx="1.8" fill="#faf3e8" stroke="#8a6a4a" stroke-width="1.3"/><rect x="5" y="4.2" width="10" height="3.6" rx="0.8" fill="#8a6a4a"/><circle cx="6.3" cy="11" r="1" fill="#c98a44"/><circle cx="10" cy="11" r="1" fill="#c98a44"/><circle cx="13.7" cy="11" r="1" fill="#c98a44"/><circle cx="6.3" cy="14.4" r="1" fill="#c98a44"/><circle cx="10" cy="14.4" r="1" fill="#c98a44"/><circle cx="13.7" cy="14.4" r="1" fill="#c98a44"/></svg>計算';
   const rD=document.createElement('div'); rD.style.cssText='margin-top:8px;width:100%;';
   cB.addEventListener('click',()=>{
     const actual=parseFloat(fI.value);
@@ -535,7 +732,8 @@ function buildRecipeCard(rec) {
   });
   calcRow.appendChild(fF); calcRow.appendChild(cB);
   if (canMake) {
-    const uB=document.createElement('button'); uB.className='btn'; uB.style.fontSize='12px'; uB.textContent='👨‍🍳 製造して在庫を減らす';
+    const uB=document.createElement('button'); uB.className='btn'; uB.style.fontSize='12px';
+    uB.innerHTML = '<svg viewBox="0 0 20 20" width="12" height="12" style="vertical-align:-1px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg"><path d="M3,9 L17,9 L15,16 Q14.7,17 13.6,17 L6.4,17 Q5.3,17 5,16 Z" fill="#faf3e8" stroke="#8a6a4a" stroke-width="1.4" stroke-linejoin="round"/><line x1="3" y1="9" x2="17" y2="9" stroke="#8a6a4a" stroke-width="1.4"/><line x1="10" y1="2" x2="10" y2="8" stroke="#8a6a4a" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="2" r="1.2" fill="#c98a44"/></svg>製造して在庫を減らす';
     uB.addEventListener('click',()=>{ rec.ingredients.forEach(ri=>{ if(isInfiniteIngredient(ri.name))return; const ing=state.ingredients.find(i=>i.name===ri.name); if(ing)ing.qty=Math.max(0,Math.round((ing.qty-flour*ri.pct/100)*1000)/1000);}); saveState(); renderInventory(); renderRecipes(); showToast('在庫を更新しました'); });
     calcRow.appendChild(uB);
   }
@@ -543,8 +741,24 @@ function buildRecipeCard(rec) {
   body.appendChild(makeSection);
 
   const stepsSection=document.createElement('div'); stepsSection.className='steps-section';
-  const stepsTag=document.createElement('span'); stepsTag.className='section-tag'; stepsTag.textContent='📋 製作手順';
-  stepsSection.appendChild(stepsTag);
+  const stepsTagRow=document.createElement('div'); stepsTagRow.className='section-tag-row';
+  const stepsTag=document.createElement('span'); stepsTag.className='section-tag';
+  stepsTag.innerHTML = '<svg viewBox="0 0 20 20" width="12" height="12" style="vertical-align:-1px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="12" height="15" rx="1.6" fill="#faf3e8" stroke="#6a4a8a" stroke-width="1.3"/><rect x="7.5" y="1.5" width="5" height="2.6" rx="0.8" fill="#6a4a8a"/><path d="M6.4,8.4 L7.4,9.4 L9.2,7.2" fill="none" stroke="#6a4a8a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10.4" y1="8.4" x2="13.6" y2="8.4" stroke="#6a4a8a" stroke-width="1.2" stroke-linecap="round"/><path d="M6.4,12.6 L7.4,13.6 L9.2,11.4" fill="none" stroke="#6a4a8a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10.4" y1="12.6" x2="13.6" y2="12.6" stroke="#6a4a8a" stroke-width="1.2" stroke-linecap="round"/></svg>製作手順';
+  const stepsTagActions=document.createElement('div'); stepsTagActions.className='tag-actions';
+  const stepCopyBtn=document.createElement('button'); stepCopyBtn.type='button'; stepCopyBtn.className='tag-icon-btn'; stepCopyBtn.title='手順をコピー'; stepCopyBtn.innerHTML=copyIconSVG();
+  stepCopyBtn.addEventListener('click',()=>{ stepClipboard=(rec.steps||[]).map(x=>({...x})); showToast(`手順をコピーしました（${stepClipboard.length}件）`); });
+  const stepPasteBtn=document.createElement('button'); stepPasteBtn.type='button'; stepPasteBtn.className='tag-icon-btn'; stepPasteBtn.title='手順をペースト'; stepPasteBtn.innerHTML=pasteIconSVG();
+  stepPasteBtn.addEventListener('click',()=>{
+    if(!stepClipboard || !stepClipboard.length){ showToast('コピーした手順がありません'); return; }
+    showConfirm(`コピーした手順（${stepClipboard.length}件）をこのレシピに追加しますか？`, ()=>{
+      if(!rec.steps) rec.steps=[];
+      rec.steps = rec.steps.concat(stepClipboard.map(x=>({...x})));
+      openRecipeIds.add(rec.id); saveState(); renderRecipes(); showToast('手順を貼り付けました');
+    });
+  });
+  stepsTagActions.appendChild(stepCopyBtn); stepsTagActions.appendChild(stepPasteBtn);
+  stepsTagRow.appendChild(stepsTag); stepsTagRow.appendChild(stepsTagActions);
+  stepsSection.appendChild(stepsTagRow);
   const stepsList=document.createElement('div'); stepsList.dataset.stepsOf=rec.id; stepsList.style.marginTop='4px';
   if (!rec.steps || !rec.steps.length) {
     const emptyStep=document.createElement('div'); emptyStep.style.cssText='font-size:12px;color:#bbb;padding:6px 0;'; emptyStep.textContent='手順が未登録です';
@@ -554,10 +768,25 @@ function buildRecipeCard(rec) {
       const sItem=document.createElement('div'); sItem.className='step-item sortable-item'; sItem.dataset.index=si;
       const sHandle=document.createElement('span'); sHandle.className='drag-handle'; sHandle.textContent='⠿';
       const sNum=document.createElement('span'); sNum.className='step-num'; sNum.textContent=(si+1)+'.';
-      const sText=document.createElement('span'); sText.className='step-text'; sText.textContent=step;
-      const sDel=document.createElement('button'); sDel.className='btn btn-danger'; sDel.style.cssText='font-size:11px;padding:3px 8px;flex-shrink:0;'; sDel.textContent='削除';
-      sDel.addEventListener('click',()=>{ rec.steps.splice(si,1); openRecipeIds.add(rec.id); saveState(); renderRecipes(); });
-      sItem.appendChild(sHandle); sItem.appendChild(sNum); sItem.appendChild(sText); sItem.appendChild(sDel);
+      const sText=document.createElement('span'); sText.className='step-text'; sText.textContent=step.text;
+      const timeKey = rec.id+':'+si;
+      const sTimeWrap=document.createElement('span'); sTimeWrap.style.cssText='display:inline-flex;align-items:center;gap:3px;flex-shrink:0;';
+      if (editingStepTimeKey === timeKey) {
+        const tInput=document.createElement('input'); tInput.type='number'; tInput.min='1'; tInput.step='1'; tInput.value=step.minutes||''; tInput.placeholder='分'; tInput.style.cssText='width:50px;font-size:12px;padding:3px 5px;border:1px solid #d0c8be;border-radius:6px;font-family:inherit;color:#1a1a1a;background:#fff;';
+        const tSave=document.createElement('button'); tSave.className='btn btn-primary'; tSave.style.cssText='font-size:11px;padding:3px 7px;'; tSave.textContent='OK';
+        const commitTime=()=>{ const v=parseInt(tInput.value); step.minutes=(!isNaN(v)&&v>0)?v:null; editingStepTimeKey=null; openRecipeIds.add(rec.id); saveState(); renderRecipes(); };
+        tSave.addEventListener('click', commitTime);
+        tInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); commitTime(); } });
+        sTimeWrap.appendChild(tInput); sTimeWrap.appendChild(tSave);
+      } else {
+        const tBtn=document.createElement('button'); tBtn.type='button'; tBtn.className='btn'; tBtn.style.cssText='font-size:11px;padding:3px 7px;display:inline-flex;align-items:center;'; tBtn.title='作業時間を設定（分）';
+        tBtn.innerHTML = '<svg viewBox="0 0 20 20" width="13" height="13" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" fill="#faf3e8" stroke="#8a6a4a" stroke-width="1.4"/><line x1="10" y1="10" x2="10" y2="5.5" stroke="#8a6a4a" stroke-width="1.4" stroke-linecap="round"/><line x1="10" y1="10" x2="13.5" y2="11.5" stroke="#8a6a4a" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="10" r="1" fill="#8a6a4a"/></svg>' + (step.minutes ? `<span style="margin-left:4px;">${step.minutes}分</span>` : '');
+        tBtn.addEventListener('click', ()=>{ editingStepTimeKey=timeKey; renderRecipes(); });
+        sTimeWrap.appendChild(tBtn);
+      }
+      const sDel=makeDeleteIconBtn('手順を削除'); sDel.style.cssText='padding:3px 6px;flex-shrink:0;';
+      sDel.addEventListener('click',()=>{ showConfirm('この手順を削除しますか？', ()=>{ rec.steps.splice(si,1); openRecipeIds.add(rec.id); saveState(); renderRecipes(); }); });
+      sItem.appendChild(sHandle); sItem.appendChild(sNum); sItem.appendChild(sText); sItem.appendChild(sTimeWrap); sItem.appendChild(sDel);
       stepsList.appendChild(sItem);
       attachDragHandle(sHandle, sItem, {
         containerSelector: `[data-steps-of="${rec.id}"]`,
@@ -577,7 +806,7 @@ function buildRecipeCard(rec) {
     const v=stepInput.value.trim();
     if(!v){showToast('手順内容を入力してください');return;}
     if(!rec.steps) rec.steps=[];
-    rec.steps.push(v); openRecipeIds.add(rec.id); saveState(); renderRecipes();
+    rec.steps.push({text:v, minutes:null}); openRecipeIds.add(rec.id); saveState(); renderRecipes();
   };
   stepAddBtn.addEventListener('click', addStep);
   stepInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addStep(); } });
@@ -638,11 +867,13 @@ function renderRecipes() {
       gTitle.addEventListener('click', ()=>{ editingGroupId=group.id; renderRecipes(); });
       gHL.appendChild(gTitle);
     }
-    const gDel = document.createElement('button'); gDel.className='btn btn-danger'; gDel.textContent='グループ削除';
+    const gDel = makeDeleteIconBtn('グループ削除');
     gDel.addEventListener('click', ()=>{
-      state.recipes.forEach(r=>{ if(r.groupId===group.id) r.groupId=null; });
-      state.groups = state.groups.filter(g=>g.id!==group.id);
-      saveState(); renderRecipes(); showToast('グループを削除しました');
+      showConfirm(`グループ「${group.name}」を削除しますか？（中のレシピは未分類に戻ります）`, ()=>{
+        state.recipes.forEach(r=>{ if(r.groupId===group.id) r.groupId=null; });
+        state.groups = state.groups.filter(g=>g.id!==group.id);
+        saveState(); renderRecipes(); showToast('グループを削除しました');
+      });
     });
     gHeader.appendChild(gHL); gHeader.appendChild(gDel);
     groupCard.appendChild(gHeader);
@@ -685,7 +916,7 @@ function renderRecipes() {
 function renderShop() {
   const list=document.getElementById('shop-list');
   const items=state.ingredients.filter(i=>getStatus(i.qty,i.min)!=='ok');
-  if(!items.length){list.innerHTML='<div class="empty-state">✅ 補充が必要な材料はありません</div>';return;}
+  if(!items.length){list.innerHTML='<div class="empty-state"><svg viewBox="0 0 20 20" width="15" height="15" style="vertical-align:-3px;margin-right:5px;" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8.5" fill="#eaf5ea" stroke="#5a9a5a" stroke-width="1.4"/><path d="M6,10.2 L8.7,13 L14,7.2" fill="none" stroke="#4a8a4a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>補充が必要な材料はありません</div>';return;}
   list.innerHTML='';
   items.forEach(ing=>{
     const needed=Math.max(0,ing.min-ing.qty);
@@ -697,7 +928,7 @@ function renderShop() {
     infoDiv.appendChild(nameDiv); infoDiv.appendChild(detailDiv);
     const actionDiv=document.createElement('div'); actionDiv.style.cssText='display:flex;gap:6px;';
     if (ing.link) {
-      const linkBtn=document.createElement('button'); linkBtn.className='link-btn'; linkBtn.textContent='🔗 購入する';
+      const linkBtn=document.createElement('button'); linkBtn.className='link-btn'; linkBtn.textContent='購入する';
       linkBtn.addEventListener('click',()=>window.open(ing.link,'_blank'));
       actionDiv.appendChild(linkBtn);
     } else {
@@ -708,6 +939,328 @@ function renderShop() {
     list.appendChild(card);
   });
 }
+function findGridUnderPoint(x, y) {
+  let found = null;
+  document.querySelectorAll('.calendar-grid[data-date]').forEach(g => {
+    const r = g.getBoundingClientRect();
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) found = g;
+  });
+  return found;
+}
+function attachRecipeChipDrag(chip, rec) {
+  chip.addEventListener('pointerdown', (e) => {
+    if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+    e.preventDefault();
+    const rect = chip.getBoundingClientRect();
+    const ghost = chip.cloneNode(true);
+    ghost.classList.add('dragging-ghost');
+    ghost.style.width = rect.width + 'px';
+    ghost.style.left = rect.left + 'px';
+    ghost.style.top = rect.top + 'px';
+    document.body.appendChild(ghost);
+    const offX = e.clientX - rect.left, offY = e.clientY - rect.top;
+    const onMove = (ev) => {
+      ghost.style.left = (ev.clientX - offX) + 'px';
+      ghost.style.top = (ev.clientY - offY) + 'px';
+      const hoverGrid = findGridUnderPoint(ev.clientX, ev.clientY);
+      document.querySelectorAll('.calendar-grid[data-date]').forEach(g => g.classList.toggle('drop-hover', g === hoverGrid));
+    };
+    const onUp = (ev) => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onUp);
+      ghost.remove();
+      document.querySelectorAll('.calendar-grid[data-date]').forEach(g => g.classList.remove('drop-hover'));
+      const hoverGrid = findGridUnderPoint(ev.clientX, ev.clientY);
+      if (!hoverGrid) { showToast('カレンダーの枠内にドロップしてください（月表示では日付をタップして日表示に切り替えてください）'); return; }
+      const gRect = hoverGrid.getBoundingClientRect();
+      let minutesFromTop = (ev.clientY - gRect.top) / CAL_PX_PER_MIN;
+      minutesFromTop = Math.round(minutesFromTop / 10) * 10;
+      let startMinutes = CAL_START_HOUR * 60 + minutesFromTop;
+      const maxStart = CAL_END_HOUR * 60 - 10;
+      startMinutes = Math.max(CAL_START_HOUR * 60, Math.min(startMinutes, maxStart));
+      const duration = recipeTotalMinutes(rec);
+      const newEv = { id: genId(), recipeId: rec.id, date: hoverGrid.dataset.date, startMinutes, durationMinutes: duration, batchAmount: null, activeStepIndex: null, stepStartedAt: null, stepDurationMs: null, doneSteps: [] };
+      state.calendar.events.push(newEv);
+      expandedEventId = newEv.id;
+      editingBatchEventId = newEv.id;
+      saveState(); renderCalendar();
+      showToast(`「${rec.name}」を${minutesToHHMM(startMinutes)}に配置しました`);
+    };
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onUp);
+  });
+}
+function calendarLabelForMode() {
+  const days = ['日','月','火','水','木','金','土'];
+  if (calendarViewMode === 'day') {
+    return `${calendarViewDate.getFullYear()}年${calendarViewDate.getMonth()+1}月${calendarViewDate.getDate()}日(${days[calendarViewDate.getDay()]})`;
+  } else if (calendarViewMode === 'week') {
+    const start = startOfWeek(calendarViewDate), end = addDays(start, 6);
+    if (start.getMonth() === end.getMonth()) {
+      return `${start.getFullYear()}年${start.getMonth()+1}月${start.getDate()}日 〜 ${end.getDate()}日`;
+    }
+    return `${start.getMonth()+1}月${start.getDate()}日 〜 ${end.getMonth()+1}月${end.getDate()}日`;
+  }
+  return `${calendarViewDate.getFullYear()}年${calendarViewDate.getMonth()+1}月`;
+}
+function buildEventElement(ev) {
+  const rec = state.recipes.find(r => r.id === ev.recipeId);
+  const evEl = document.createElement('div'); evEl.className='calendar-event'; evEl.dataset.eventId=ev.id;
+  const top = (ev.startMinutes - CAL_START_HOUR * 60) * CAL_PX_PER_MIN;
+  const baseHeight = Math.max(24, ev.durationMinutes * CAL_PX_PER_MIN);
+  evEl.style.top = top + 'px';
+  const isExpanded = expandedEventId === ev.id;
+  if (isExpanded) evEl.classList.add('expanded');
+  if (ev.activeStepIndex !== null && ev.activeStepIndex !== undefined) evEl.classList.add('blinking');
+
+  const header = document.createElement('div'); header.className='calendar-event-header';
+  const nameWrap = document.createElement('div');
+  const nameDiv = document.createElement('div'); nameDiv.className='calendar-event-name'; nameDiv.textContent = rec ? rec.name : '(削除済みレシピ)';
+  nameWrap.appendChild(nameDiv);
+
+  if (isExpanded && editingTimeEventId === ev.id) {
+    const ti = document.createElement('input'); ti.type='time'; ti.value = minutesToHHMM(ev.startMinutes);
+    ti.addEventListener('click', e => e.stopPropagation());
+    const commitTime = () => {
+      const mins = hhmmToMinutes(ti.value);
+      if (mins !== null) { ev.startMinutes = Math.max(CAL_START_HOUR*60, Math.min(mins, CAL_END_HOUR*60 - 10)); saveState(); }
+      editingTimeEventId = null; renderCalendar();
+    };
+    ti.addEventListener('change', commitTime);
+    ti.addEventListener('blur', commitTime);
+    ti.addEventListener('keydown', e => { if (e.key==='Enter'){ e.preventDefault(); commitTime(); } });
+    nameWrap.appendChild(ti);
+    setTimeout(() => ti.focus(), 0);
+  } else {
+    const timeDiv = document.createElement('div'); timeDiv.className='calendar-event-time'; timeDiv.textContent = minutesToHHMM(ev.startMinutes) + (isExpanded ? ' ✎' : '');
+    if (isExpanded) { timeDiv.title='クリックして開始時間を修正'; timeDiv.addEventListener('click', e => { e.stopPropagation(); editingTimeEventId = ev.id; renderCalendar(); }); }
+    nameWrap.appendChild(timeDiv);
+  }
+  header.appendChild(nameWrap);
+
+  const delBtn = document.createElement('div'); delBtn.className='calendar-event-del'; delBtn.innerHTML=delIconSVG(11); delBtn.title='予定を削除';
+  delBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    showConfirm('この予定を削除しますか？', () => {
+      state.calendar.events = state.calendar.events.filter(x => x.id !== ev.id);
+      if (expandedEventId === ev.id) expandedEventId = null;
+      saveState(); renderCalendar();
+    });
+  });
+  evEl.appendChild(header);
+  evEl.appendChild(delBtn);
+
+  if (isExpanded && editingBatchEventId === ev.id) {
+    const bw = document.createElement('div'); bw.style.cssText='display:flex;align-items:center;gap:4px;margin-top:3px;';
+    const bi = document.createElement('input'); bi.type='number'; bi.min='0'; bi.step='0.001'; bi.className='batch-amount-input'; bi.value=ev.batchAmount||''; bi.placeholder='分量(g)';
+    bi.addEventListener('click', e => e.stopPropagation());
+    const bs = document.createElement('button'); bs.className='btn btn-primary'; bs.style.cssText='font-size:10.5px;padding:3px 7px;'; bs.textContent='OK';
+    const commitBatch = () => { const v=parseFloat(bi.value); ev.batchAmount=(!isNaN(v)&&v>=0)?v:null; editingBatchEventId=null; saveState(); renderCalendar(); };
+    bs.addEventListener('click', e => { e.stopPropagation(); commitBatch(); });
+    bi.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); commitBatch(); } });
+    bw.appendChild(bi); bw.appendChild(bs);
+    evEl.appendChild(bw);
+    setTimeout(() => bi.focus(), 0);
+  } else {
+    const amtDiv = document.createElement('div'); amtDiv.className='calendar-event-amount'; amtDiv.textContent = ev.batchAmount ? `分量 ${fmt(ev.batchAmount)}g` : '分量未設定';
+    if (isExpanded) { amtDiv.title='クリックして製作分量を編集'; amtDiv.addEventListener('click', e => { e.stopPropagation(); editingBatchEventId = ev.id; renderCalendar(); }); }
+    evEl.appendChild(amtDiv);
+  }
+
+  if (!isExpanded) {
+    evEl.style.height = baseHeight + 'px';
+  } else if (rec) {
+    const gauge = document.createElement('div'); gauge.className='event-steps-gauge';
+    const steps = (rec.steps && rec.steps.length) ? rec.steps : [{text:'（手順が未登録／デフォルト30分）', minutes:30}];
+    steps.forEach((step, si) => {
+      const dur = stepDurationMinutes(step);
+      const row = document.createElement('div'); row.className='gauge-step';
+      row.style.minHeight = Math.max(30, dur * 4) + 'px';
+      const isActive = ev.activeStepIndex === si;
+      const isDone = ev.doneSteps && ev.doneSteps.includes(si);
+      const num = document.createElement('div'); num.className='gauge-step-num' + (isActive ? ' active-step' : ''); num.textContent = si+1;
+      const text = document.createElement('div'); text.className='gauge-step-text'; text.textContent = step.text;
+      row.appendChild(num); row.appendChild(text);
+      if (isActive) {
+        const timerEl = document.createElement('div'); timerEl.className='gauge-step-timer'; timerEl.dataset.timerFor = ev.id + ':' + si; timerEl.textContent = '--:--';
+        row.appendChild(timerEl);
+      } else if (isDone) {
+        const doneEl = document.createElement('div'); doneEl.className='gauge-step-done'; doneEl.textContent = '完了 ✓';
+        row.appendChild(doneEl);
+      } else {
+        const durEl = document.createElement('div'); durEl.className='gauge-step-dur'; durEl.textContent = dur + '分';
+        row.appendChild(durEl);
+      }
+      row.addEventListener('click', e => {
+        e.stopPropagation();
+        if (!rec.steps || !rec.steps.length) return;
+        if (ev.activeStepIndex !== null && ev.activeStepIndex !== undefined) { showToast('すでに実行中の手順があります'); return; }
+        if (isDone) return;
+        showConfirm(`「${step.text}」を開始しますか？（${dur}分）`, () => {
+          ev.activeStepIndex = si; ev.stepStartedAt = Date.now(); ev.stepDurationMs = dur * 60000;
+          saveState(); renderCalendar();
+        });
+      });
+      gauge.appendChild(row);
+    });
+    evEl.appendChild(gauge);
+    evEl.style.height = 'auto';
+  }
+
+  evEl.addEventListener('click', e => {
+    if (e.target === delBtn || delBtn.contains(e.target)) return;
+    expandedEventId = (expandedEventId === ev.id) ? null : ev.id;
+    editingBatchEventId = null; editingTimeEventId = null;
+    renderCalendar();
+  });
+  return evEl;
+}
+function buildDayColumn(dateObj) {
+  const col = document.createElement('div'); col.className='calendar-day-col';
+  const header = document.createElement('div'); header.className='calendar-day-col-header';
+  const days = ['日','月','火','水','木','金','土'];
+  const isToday = isSameDate(dateObj, new Date());
+  if (isToday) header.classList.add('is-today');
+  header.textContent = `${dateObj.getMonth()+1}/${dateObj.getDate()}(${days[dateObj.getDay()]})`;
+  col.appendChild(header);
+
+  const gridEl = document.createElement('div'); gridEl.className='calendar-grid'; gridEl.dataset.date = todayKey(dateObj);
+  const totalMinutes = (CAL_END_HOUR - CAL_START_HOUR) * 60;
+  const totalPx = totalMinutes * CAL_PX_PER_MIN;
+  const hourPx = 60 * CAL_PX_PER_MIN;
+  gridEl.style.height = totalPx + 'px';
+  gridEl.style.setProperty('--hour-px', hourPx + 'px');
+  const dayKey = todayKey(dateObj);
+  const dayEvents = state.calendar.events.filter(ev => ev.date === dayKey);
+  if (!dayEvents.length) {
+    const hint = document.createElement('div'); hint.style.cssText='position:absolute;top:8px;left:6px;right:6px;font-size:11px;color:#c8bfae;'; hint.textContent='ドラッグ&ドロップ';
+    gridEl.appendChild(hint);
+  }
+  dayEvents.forEach(ev => gridEl.appendChild(buildEventElement(ev)));
+  col.appendChild(gridEl);
+  return col;
+}
+function renderDayOrWeekView() {
+  const body = document.getElementById('calendar-body');
+  body.innerHTML = '';
+  const dates = calendarViewMode === 'day' ? [new Date(calendarViewDate)] : Array.from({length:7}, (_,i) => addDays(startOfWeek(calendarViewDate), i));
+
+  const wrap = document.createElement('div'); wrap.className='calendar-wrap';
+  const hoursEl = document.createElement('div'); hoursEl.className='calendar-hours';
+  const totalMinutes = (CAL_END_HOUR - CAL_START_HOUR) * 60;
+  const totalPx = totalMinutes * CAL_PX_PER_MIN;
+  const hourPx = 60 * CAL_PX_PER_MIN;
+  hoursEl.style.height = (totalPx + 24) + 'px';
+  hoursEl.style.paddingTop = '24px';
+  hoursEl.style.boxSizing = 'border-box';
+  for (let h = CAL_START_HOUR; h < CAL_END_HOUR; h++) {
+    const lbl = document.createElement('div'); lbl.className='calendar-hour-label'; lbl.style.height=hourPx+'px'; lbl.style.lineHeight=hourPx+'px'; lbl.textContent = h + ':00';
+    hoursEl.appendChild(lbl);
+  }
+  wrap.appendChild(hoursEl);
+
+  const daysRow = document.createElement('div'); daysRow.className='calendar-days-row' + (calendarViewMode==='week' ? ' mode-week' : '');
+  dates.forEach(d => daysRow.appendChild(buildDayColumn(d)));
+  wrap.appendChild(daysRow);
+  body.appendChild(wrap);
+  tickTimers();
+}
+function renderMonthView() {
+  const body = document.getElementById('calendar-body');
+  body.innerHTML = '';
+  const days = ['日','月','火','水','木','金','土'];
+  const wh = document.createElement('div'); wh.className='month-weekday-header';
+  days.forEach(d => { const c=document.createElement('div'); c.textContent=d; wh.appendChild(c); });
+  body.appendChild(wh);
+
+  const y = calendarViewDate.getFullYear(), m = calendarViewDate.getMonth();
+  const firstOfMonth = new Date(y, m, 1);
+  const gridStart = startOfWeek(firstOfMonth);
+  const grid = document.createElement('div'); grid.className='month-grid';
+  const today = new Date();
+  for (let i = 0; i < 42; i++) {
+    const d = addDays(gridStart, i);
+    const cell = document.createElement('div'); cell.className='month-cell';
+    if (d.getMonth() !== m) cell.classList.add('other-month');
+    if (isSameDate(d, today)) cell.classList.add('is-today');
+    const dateLbl = document.createElement('div'); dateLbl.className='month-cell-date'; dateLbl.textContent = d.getDate();
+    cell.appendChild(dateLbl);
+    const dayKey = todayKey(d);
+    const dayEvents = state.calendar.events.filter(ev => ev.date === dayKey).sort((a,b)=>a.startMinutes-b.startMinutes);
+    dayEvents.slice(0,3).forEach(ev => {
+      const rec = state.recipes.find(r => r.id === ev.recipeId);
+      const chip = document.createElement('div'); chip.className='month-cell-event';
+      chip.textContent = `${minutesToHHMM(ev.startMinutes)} ${rec ? rec.name : '(削除済み)'}`;
+      cell.appendChild(chip);
+    });
+    if (dayEvents.length > 3) {
+      const more = document.createElement('div'); more.style.cssText='font-size:9.5px;color:#aaa;'; more.textContent=`他${dayEvents.length-3}件`;
+      cell.appendChild(more);
+    }
+    cell.addEventListener('click', () => {
+      calendarViewDate = d; calendarViewMode = 'day'; expandedEventId = null; editingBatchEventId = null; editingTimeEventId = null;
+      updateCalendarViewTabs(); renderCalendar();
+    });
+    grid.appendChild(cell);
+  }
+  body.appendChild(grid);
+}
+function updateCalendarViewTabs() {
+  document.querySelectorAll('.calendar-view-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === calendarViewMode));
+}
+function renderCalendar() {
+  const label = document.getElementById('calendar-date-label');
+  label.textContent = calendarLabelForMode();
+
+  const chipRow = document.getElementById('calendar-chip-row');
+  chipRow.innerHTML = '';
+  if (!state.recipes.length) {
+    const hint = document.createElement('div'); hint.style.cssText='font-size:12px;color:#aaa;padding:6px 2px;'; hint.textContent='レシピを登録するとここに表示されます';
+    chipRow.appendChild(hint);
+  } else {
+    state.recipes.forEach(rec => {
+      const chip = document.createElement('div'); chip.className='recipe-chip'; chip.dataset.recipeId=rec.id;
+      const handle=document.createElement('span'); handle.textContent='⠿'; handle.style.cssText='color:#c0b6a8;';
+      const label2=document.createElement('span'); label2.textContent=rec.name;
+      chip.appendChild(handle); chip.appendChild(label2);
+      chipRow.appendChild(chip);
+      attachRecipeChipDrag(chip, rec);
+    });
+  }
+
+  if (calendarViewMode === 'month') renderMonthView();
+  else renderDayOrWeekView();
+}
+function tickTimers() {
+  const now = Date.now();
+  let completedAny = false;
+  state.calendar.events.forEach(ev => {
+    if (ev.activeStepIndex === null || ev.activeStepIndex === undefined) return;
+    const remain = ev.stepStartedAt + ev.stepDurationMs - now;
+    if (remain <= 0) {
+      if (!ev.doneSteps) ev.doneSteps = [];
+      if (!ev.doneSteps.includes(ev.activeStepIndex)) ev.doneSteps.push(ev.activeStepIndex);
+      const rec = state.recipes.find(r => r.id === ev.recipeId);
+      const stepText = rec && rec.steps && rec.steps[ev.activeStepIndex] ? rec.steps[ev.activeStepIndex].text : '手順';
+      ev.activeStepIndex = null; ev.stepStartedAt = null; ev.stepDurationMs = null;
+      completedAny = true;
+      showToast(`「${stepText}」が完了しました`);
+    } else {
+      const key = ev.id + ':' + ev.activeStepIndex;
+      const timerEl = document.querySelector(`[data-timer-for="${key}"]`);
+      if (timerEl) {
+        const totalSec = Math.ceil(remain / 1000);
+        const mm = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const ss = (totalSec % 60).toString().padStart(2, '0');
+        timerEl.textContent = `${mm}:${ss}`;
+      }
+    }
+  });
+  if (completedAny) { saveState(); renderCalendar(); }
+}
+setInterval(() => { if (document.getElementById('calendar').classList.contains('active')) tickTimers(); }, 1000);
 function render(){renderInventory();renderRecipes();}
 document.getElementById('add-ing-btn').addEventListener('click',()=>{
   const name=document.getElementById('new-name').value.trim();
@@ -746,11 +1299,29 @@ document.getElementById('copy-shop-btn').addEventListener('click',()=>{
   navigator.clipboard.writeText('【購入リスト】\n'+items.map(i=>`・${i.name}：${fmt(Math.max(0,i.min-i.qty))}g不足`).join('\n'));
   showToast('コピーしました');
 });
+function calendarNavStep(dir) {
+  if (calendarViewMode === 'day') calendarViewDate = addDays(calendarViewDate, dir);
+  else if (calendarViewMode === 'week') calendarViewDate = addDays(calendarViewDate, dir*7);
+  else calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth()+dir, 1);
+  expandedEventId=null; editingBatchEventId=null; editingTimeEventId=null;
+  renderCalendar();
+}
+document.getElementById('cal-prev').addEventListener('click', ()=> calendarNavStep(-1));
+document.getElementById('cal-next').addEventListener('click', ()=> calendarNavStep(1));
+document.querySelectorAll('.calendar-view-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    calendarViewMode = btn.dataset.mode;
+    expandedEventId=null; editingBatchEventId=null; editingTimeEventId=null;
+    updateCalendarViewTabs(); renderCalendar();
+  });
+});
+updateCalendarViewTabs();
 setSyncStatus('loading','Firebaseに接続中…');
 onSnapshot(DOC_REF,(snap)=>{
-  if(snap.exists()){const d=snap.data(); state.ingredients=d.ingredients||[]; state.recipes=d.recipes||[]; state.groups=d.groups||[]; state.ingredientGroups=d.ingredientGroups||[];}
+  if(snap.exists()){const d=snap.data(); state.ingredients=d.ingredients||[]; state.recipes=d.recipes||[]; state.groups=d.groups||[]; state.ingredientGroups=d.ingredientGroups||[]; state.calendar=d.calendar||{events:[]};}
   ensureIds();
-  render(); setSyncStatus('ok','Firebaseと同期済み ✓');
+  render(); setSyncStatus('ok','Firebaseと同期済み');
+  if (document.getElementById('calendar').classList.contains('active')) renderCalendar();
 },(err)=>{
   setSyncStatus('err','接続エラー: '+err.message);
   showToast('Firebase接続エラー: '+err.message);
