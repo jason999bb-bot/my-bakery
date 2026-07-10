@@ -133,7 +133,7 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 .calendar-event-amount { font-size: 11px; color: #5a3f18; cursor: pointer; }
 .calendar-event-time { font-size: 10.5px; color: #6a4a1a; cursor: pointer; }
 .calendar-event-time input { width: 52px; font-size: 11px; padding: 2px 3px; border: 1px solid #a97a2f; border-radius: 5px; font-family: inherit; }
-.calendar-event-del { position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; background: rgba(255,255,255,0.75); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.calendar-event-del { position: absolute; top: 1px; right: 1px; width: 15px; height: 15px; background: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .batch-amount-input { width: 60px; font-size: 11.5px; padding: 3px 5px; border: 1px solid #d0c8be; border-radius: 6px; font-family: inherit; }
 .event-steps-gauge { margin-top: 6px; border-top: 1px solid rgba(74,47,10,0.25); padding-top: 4px; }
 .gauge-step { border-bottom: 1px solid rgba(74,47,10,0.15); padding: 4px 2px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
@@ -1005,7 +1005,33 @@ function calendarLabelForMode() {
   }
   return `${calendarViewDate.getFullYear()}年${calendarViewDate.getMonth()+1}月`;
 }
-function buildEventElement(ev) {
+function layoutDayEvents(events) {
+  const layout = {};
+  if (!events.length) return layout;
+  const sorted = [...events].sort((a,b) => a.startMinutes - b.startMinutes || (b.durationMinutes - a.durationMinutes));
+  const clusters = [];
+  let current = [], currentEnd = -Infinity;
+  sorted.forEach(ev => {
+    const start = ev.startMinutes, end = ev.startMinutes + Math.max(ev.durationMinutes, 1);
+    if (current.length && start >= currentEnd) { clusters.push(current); current = []; currentEnd = -Infinity; }
+    current.push(ev); currentEnd = Math.max(currentEnd, end);
+  });
+  if (current.length) clusters.push(current);
+  clusters.forEach(cluster => {
+    const colEnds = [];
+    cluster.forEach(ev => {
+      const start = ev.startMinutes, end = ev.startMinutes + Math.max(ev.durationMinutes, 1);
+      let placedCol = colEnds.findIndex(e => e <= start);
+      if (placedCol === -1) { placedCol = colEnds.length; colEnds.push(end); }
+      else { colEnds[placedCol] = end; }
+      layout[ev.id] = { col: placedCol };
+    });
+    const totalCols = colEnds.length;
+    cluster.forEach(ev => { layout[ev.id].cols = totalCols; });
+  });
+  return layout;
+}
+function buildEventElement(ev, layoutInfo) {
   const rec = state.recipes.find(r => r.id === ev.recipeId);
   const evEl = document.createElement('div'); evEl.className='calendar-event'; evEl.dataset.eventId=ev.id;
   const top = (ev.startMinutes - CAL_START_HOUR * 60) * CAL_PX_PER_MIN;
@@ -1070,6 +1096,11 @@ function buildEventElement(ev) {
   }
 
   if (!isExpanded) {
+    const cols = (layoutInfo && layoutInfo.cols) || 1;
+    const col = (layoutInfo && layoutInfo.col) || 0;
+    evEl.style.left = `calc(${(col/cols)*100}% + 2px)`;
+    evEl.style.width = `calc(${100/cols}% - 4px)`;
+    evEl.style.right = 'auto';
     evEl.style.height = baseHeight + 'px';
   } else if (rec) {
     const gauge = document.createElement('div'); gauge.className='event-steps-gauge';
@@ -1138,7 +1169,8 @@ function buildDayColumn(dateObj) {
     const hint = document.createElement('div'); hint.style.cssText='position:absolute;top:8px;left:6px;right:6px;font-size:11px;color:#c8bfae;'; hint.textContent='ドラッグ&ドロップ';
     gridEl.appendChild(hint);
   }
-  dayEvents.forEach(ev => gridEl.appendChild(buildEventElement(ev)));
+  const layout = layoutDayEvents(dayEvents);
+  dayEvents.forEach(ev => gridEl.appendChild(buildEventElement(ev, layout[ev.id])));
   col.appendChild(gridEl);
   return col;
 }
