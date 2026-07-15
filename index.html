@@ -8,6 +8,19 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Meiryo', sans-serif; background: #fafaf8; color: #1a1a1a; min-height: 100vh; }
 .container { max-width: 680px; margin: 0 auto; padding: 1rem; }
+.app-shell { display: flex; flex-direction: column; }
+.app-sidebar { }
+.app-main { min-width: 0; }
+@media (min-width: 900px) {
+  .container { max-width: none; width: 100%; box-sizing: border-box; padding: 1.5rem 3rem; }
+  .app-shell { flex-direction: row; align-items: flex-start; gap: 32px; }
+  .app-sidebar { width: 220px; flex-shrink: 0; position: sticky; top: 20px; }
+  .app-sidebar .tabs { flex-direction: column; }
+  .app-sidebar .tabs { border-bottom: none; margin-bottom: 1.25rem; }
+  .app-sidebar .tab { display: flex; align-items: center; text-align: left; justify-content: flex-start; border-bottom: none; border-left: 2px solid transparent; border-radius: 0 8px 8px 0; margin-bottom: 0; padding: 10px 14px; }
+  .app-sidebar .tab.active { border-left-color: #3a2a1a; background: #f5efe4; }
+  .app-main { flex: 1; min-width: 0; max-width: 1700px; }
+}
 h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; letter-spacing: 0.03em; }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid #e8e0d8; margin-bottom: 1.25rem; margin-top: 0.5rem; }
 .tab { padding: 8px 16px; font-size: 13px; border: none; background: none; cursor: pointer; color: #888; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: inherit; }
@@ -23,11 +36,12 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 .badge-ok { background: #e6f4ea; color: #2e7d32; }
 .badge-low { background: #fff3e0; color: #e65100; }
 .badge-out { background: #fde8e8; color: #c62828; }
-.progress-bar { flex: 1; height: 6px; background: #eee; border-radius: 999px; overflow: hidden; min-width: 40px; }
-.progress-fill { height: 100%; border-radius: 999px; }
-.progress-ok { background: #4caf50; }
+.progress-bar { position: relative; flex: 1; height: 22px; background: #eee; border-radius: 999px; overflow: hidden; min-width: 120px; }
+.progress-fill { height: 100%; border-radius: 999px; transition: width 0.2s; }
+.progress-ok { background: #68be8d; }
 .progress-low { background: #ff9800; }
 .progress-out { background: #e53935; }
+.progress-min-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(0,0,0,0.4); }
 .btn { background: none; border: 1px solid #d0c8be; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; color: #3a2a1a; display: inline-flex; align-items: center; gap: 5px; font-family: inherit; }
 .btn:hover { background: #f5f0e8; }
 .btn-primary { background: #3a2a1a; color: #fff; border-color: #3a2a1a; }
@@ -66,6 +80,12 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #3a2a1a; color: #fff; font-size: 13px; padding: 9px 20px; border-radius: 20px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; white-space: nowrap; font-family: inherit; }
 .toast.show { opacity: 1; }
+.step-popup-container { position: fixed; bottom: 1.5rem; left: 1.5rem; z-index: 250; display: flex; flex-direction: column-reverse; gap: 10px; max-width: min(320px, calc(100vw - 3rem)); }
+.step-popup { background: #fff; border: 1px solid #e6dcc8; border-radius: 12px; padding: 14px 16px 12px; box-shadow: 0 10px 28px rgba(0,0,0,0.2); animation: stepPopupIn 0.25s ease-out; }
+@keyframes stepPopupIn { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.step-popup-msg { font-size: 13.5px; color: #3a2a1a; line-height: 1.55; margin-bottom: 10px; }
+.step-popup-actions { display: flex; justify-content: flex-end; }
+.step-popup-ok { background: #3a2a1a; color: #fff; border: none; border-radius: 8px; padding: 6px 20px; font-size: 13px; cursor: pointer; font-family: inherit; }
 .confirm-overlay { position: fixed; inset: 0; background: rgba(30,20,10,0.35); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
 .confirm-box { background: #fff; border-radius: 14px; padding: 20px 22px; max-width: 320px; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
 .confirm-msg { font-size: 14px; color: #3a2a1a; margin-bottom: 16px; line-height: 1.5; }
@@ -107,12 +127,16 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 .recipe-chip { flex-shrink: 0; background: #fff; border: 1px solid #d0c8be; border-radius: 999px; padding: 7px 14px; font-size: 12.5px; color: #3a2a1a; cursor: grab; user-select: none; touch-action: none; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
 .recipe-chip:active { cursor: grabbing; }
 .recipe-chip.dragging-ghost { position: fixed; z-index: 500; pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,0.25); opacity: 0.92; }
+.recipe-chip-lowstock { background: #fff5f5; border-color: #e5a3a3; color: #a34848; cursor: not-allowed; opacity: 0.85; }
+.recipe-chip-warn { color: #c62828; font-size: 10.5px; font-weight: 600; }
 .calendar-view-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
 .calendar-view-tab { flex: 1; background: #fff; border: 1px solid #d0c8be; padding: 7px 0; font-size: 12.5px; cursor: pointer; color: #8a6a4a; font-family: inherit; }
 .calendar-view-tab:first-child { border-radius: 8px 0 0 8px; }
 .calendar-view-tab:last-child { border-radius: 0 8px 8px 0; }
 .calendar-view-tab:not(:first-child) { border-left: none; }
 .calendar-view-tab.active { background: #3a2a1a; color: #fff; border-color: #3a2a1a; }
+.calendar-top-scroll { overflow-x: auto; overflow-y: hidden; height: 14px; margin-bottom: 2px; }
+.calendar-top-scroll-inner { height: 1px; }
 .calendar-wrap { display: flex; border: 1px solid #ede8e0; border-radius: 12px; overflow: hidden; background: #fff; }
 .calendar-hours { width: 40px; flex-shrink: 0; border-right: 1px solid #ede8e0; background: #fbf8f3; }
 .calendar-hour-label { font-size: 10px; color: #aaa; text-align: right; padding-right: 5px; box-sizing: border-box; border-top: 1px solid #f1ece3; }
@@ -124,14 +148,15 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 .calendar-day-col-header.is-today { color: #c98a44; }
 .calendar-grid { position: relative; background-image: repeating-linear-gradient(to bottom, #f1ece3, #f1ece3 1px, transparent 1px, transparent var(--hour-px)); }
 .calendar-grid.drop-hover { background-color: #f7f1e8; }
-.calendar-event { position: absolute; left: 3px; right: 3px; border-radius: 8px; background: linear-gradient(135deg,#e8cfa0,#d9a441); border: 1px solid #a97a2f; padding: 4px 7px; font-size: 11.5px; color: #4a2f0a; overflow: hidden; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-.calendar-event.expanded { z-index: 30; width: 240px; max-width: 80vw; right: auto; box-shadow: 0 6px 18px rgba(0,0,0,0.28); overflow: visible; }
+.calendar-event { position: absolute; left: 3px; right: 3px; border-radius: 8px; background: linear-gradient(135deg,#f5fafd,#d7ebf9); border: 1px solid #a9c9e0; padding: 4px 7px; font-size: 11.5px; color: #2c4a63; overflow: hidden; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.calendar-event.expanded { z-index: 30; box-shadow: 0 6px 18px rgba(0,0,0,0.28); overflow: visible; }
 .calendar-event.blinking { animation: evBlink 1s infinite; }
-@keyframes evBlink { 0%,100%{ box-shadow:0 1px 3px rgba(0,0,0,0.12); border-color:#a97a2f;} 50%{ box-shadow:0 0 0 3px rgba(229,57,53,0.55); border-color:#e53935; } }
+@keyframes evBlink { 0%,100%{ box-shadow:0 1px 3px rgba(0,0,0,0.12); border-color:#a97a2f;} 50%{ box-shadow:0 0 0 3px rgba(67,160,71,0.55); border-color:#2e7d32; } }
 .calendar-event-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
-.calendar-event-name { font-weight: 600; font-size: 12px; line-height: 1.3; }
-.calendar-event-amount { font-size: 11px; color: #5a3f18; cursor: pointer; }
-.calendar-event-time { font-size: 10.5px; color: #6a4a1a; cursor: pointer; }
+.calendar-event-name { font-weight: 600; font-size: 12px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.calendar-event.dragging { opacity: 0.5; z-index: 25; }
+.calendar-event-amount { font-size: 11px; color: #2f5470; cursor: pointer; }
+.calendar-event-time { font-size: 10.5px; color: #3a6080; cursor: pointer; }
 .calendar-event-time input { width: 52px; font-size: 11px; padding: 2px 3px; border: 1px solid #a97a2f; border-radius: 5px; font-family: inherit; }
 .calendar-event-del { position: absolute; top: 1px; right: 1px; width: 15px; height: 15px; background: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .batch-amount-input { width: 60px; font-size: 11.5px; padding: 3px 5px; border: 1px solid #d0c8be; border-radius: 6px; font-family: inherit; }
@@ -153,7 +178,7 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 .month-cell.other-month { background: #fbfaf7; color: #ccc; }
 .month-cell.is-today .month-cell-date { color: #fff; background: #c98a44; }
 .month-cell-date { font-weight: 600; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; margin-bottom: 3px; }
-.month-cell-event { font-size: 9.5px; background: #e8cfa0; border-radius: 4px; padding: 1px 4px; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #4a2f0a; }
+.month-cell-event { font-size: 9.5px; background: #eaf4fc; border: 1px solid #a9c9e0; border-radius: 4px; padding: 1px 4px; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #2c4a63; }
 </style>
 </head>
 <body>
@@ -171,6 +196,8 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
     <line x1="50" y1="7" x2="66" y2="23" stroke="#7a4a1f" stroke-width="2.5" stroke-linecap="round"/>
     <line x1="65" y1="9" x2="81" y2="25" stroke="#7a4a1f" stroke-width="2.5" stroke-linecap="round"/>
   </svg>パン屋 在庫・レシピ管理</h1>
+  <div class="app-shell">
+  <div class="app-sidebar">
   <div class="tabs">
     <button class="tab" onclick="showTab('calendar')"><svg viewBox="0 0 24 24" width="15" height="15" style="vertical-align:-3px;margin-right:4px;" xmlns="http://www.w3.org/2000/svg">
       <rect x="2.5" y="4" width="19" height="17.5" rx="2.2" fill="#faf3e8" stroke="#8a6a4a" stroke-width="1.5"/>
@@ -214,8 +241,9 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
     <div class="sync-dot loading" id="sync-dot"></div>
     <span id="sync-status">Firebaseに接続中…</span>
   </div>
+  </div>
+  <div class="app-main">
   <div id="calendar" class="section">
-    <div class="section-note">レシピをつまんでカレンダーにドラッグ&ドロップすると、作業予定がゲージとして配置されます（10分刻み）。ゲージをタップすると手順が中に表示されます。</div>
     <div class="recipe-chip-row" id="calendar-chip-row"></div>
     <div class="calendar-view-tabs" id="calendar-view-tabs">
       <button class="calendar-view-tab" data-mode="day">日</button>
@@ -270,8 +298,11 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
       <line x1="6" y1="16" x2="11" y2="16" stroke="#c98a44" stroke-width="1.3" stroke-linecap="round"/>
     </svg>リストをコピー</button>
   </div>
+  </div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
+<div class="step-popup-container" id="step-popup-container"></div>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, doc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -397,13 +428,25 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
-function showConfirm(message, onConfirm) {
+function showStepPopup(message) {
+  const container = document.getElementById('step-popup-container');
+  const popup = document.createElement('div'); popup.className = 'step-popup';
+  const msg = document.createElement('div'); msg.className = 'step-popup-msg'; msg.textContent = message;
+  const actions = document.createElement('div'); actions.className = 'step-popup-actions';
+  const okBtn = document.createElement('button'); okBtn.className = 'step-popup-ok'; okBtn.textContent = 'OK';
+  okBtn.addEventListener('click', () => popup.remove());
+  actions.appendChild(okBtn);
+  popup.appendChild(msg); popup.appendChild(actions);
+  container.appendChild(popup);
+}
+function showConfirm(message, onConfirm, options) {
+  const opts = Object.assign({ confirmLabel: '削除する', danger: true }, options || {});
   const overlay = document.createElement('div'); overlay.className='confirm-overlay';
   const box = document.createElement('div'); box.className='confirm-box';
   const msg = document.createElement('div'); msg.className='confirm-msg'; msg.textContent=message;
   const btnRow = document.createElement('div'); btnRow.className='confirm-btn-row';
   const cancelBtn = document.createElement('button'); cancelBtn.className='btn'; cancelBtn.textContent='キャンセル';
-  const okBtn = document.createElement('button'); okBtn.className='btn btn-danger'; okBtn.style.cssText='font-size:13px;padding:7px 16px;'; okBtn.textContent='削除する';
+  const okBtn = document.createElement('button'); okBtn.className='btn ' + (opts.danger ? 'btn-danger' : 'btn-primary'); okBtn.style.cssText='font-size:13px;padding:7px 16px;'; okBtn.textContent=opts.confirmLabel;
   const close = () => { overlay.remove(); };
   cancelBtn.addEventListener('click', close);
   overlay.addEventListener('click', e=>{ if(e.target===overlay) close(); });
@@ -435,6 +478,15 @@ const INFINITE_INGREDIENTS = ['水'];
 function isInfiniteIngredient(name) {
   return INFINITE_INGREDIENTS.includes(name);
 }
+function recipeCanMake(rec) {
+  if (!rec.ingredients || !rec.ingredients.length) return true;
+  const flour = rec.flourBase || 100;
+  return rec.ingredients.every(ri => {
+    if (isInfiniteIngredient(ri.name)) return true;
+    const ing = state.ingredients.find(i => i.name === ri.name);
+    return ing && ing.qty >= flour * ri.pct / 100;
+  });
+}
 function getStatus(qty, min) {
   if (qty<=0) return 'out';
   if (min>0 && qty<=min) return 'low';
@@ -442,7 +494,6 @@ function getStatus(qty, min) {
 }
 function buildIngredientCard(ing) {
   const s = getStatus(ing.qty, ing.min);
-  const pct = ing.min>0 ? Math.min(100,Math.round(ing.qty/ing.min*100)) : 100;
   const labels = {ok:'十分',low:'少ない',out:'在庫なし'};
   const card = document.createElement('div'); card.className='card sortable-item'; card.dataset.ingredientId=ing.id;
   const top = document.createElement('div'); top.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;';
@@ -484,8 +535,13 @@ function buildIngredientCard(ing) {
   const pb2 = document.createElement('button'); pb2.className='qty-btn'; pb2.textContent='＋';
   pb2.addEventListener('click',()=>{ ing.qty=Math.round((ing.qty+1)*1000)/1000; saveState(); renderInventory(); });
   qc.appendChild(mb); qc.appendChild(qi); qc.appendChild(gl); qc.appendChild(pb2);
-  const bar = document.createElement('div'); bar.className='progress-bar';
-  const fill = document.createElement('div'); fill.className=`progress-fill progress-${s}`; fill.style.width=pct+'%'; bar.appendChild(fill);
+  const bar = document.createElement('div'); bar.className='progress-bar'; bar.title = `在庫 ${fmt(ing.qty)}g ／ 最低 ${fmt(ing.min)}g`;
+  const fill = document.createElement('div'); fill.className=`progress-fill progress-${s}`; fill.style.width = (ing.qty > 0 ? 100 : 0) + '%'; bar.appendChild(fill);
+  if (ing.min > 0 && ing.qty > 0) {
+    const markerPct = Math.min(100, ing.min / ing.qty * 100);
+    const marker = document.createElement('div'); marker.className='progress-min-marker'; marker.style.left=markerPct+'%';
+    bar.appendChild(marker);
+  }
   const ml = document.createElement('span'); ml.style.cssText='font-size:12px;color:#888;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;';
   const mlLabel = document.createElement('span'); mlLabel.textContent='最低';
   const minInput = document.createElement('input'); minInput.type='number'; minInput.min='0'; minInput.step='0.001'; minInput.value=fmt(ing.min); minInput.style.cssText='width:58px;font-size:12px;padding:3px 5px;border:1px solid #d0c8be;border-radius:6px;font-family:inherit;color:#1a1a1a;background:#fff;';
@@ -610,7 +666,7 @@ function renderInventory() {
 }
 function buildRecipeCard(rec) {
   const flour = rec.flourBase||100;
-  const canMake = rec.ingredients.every(ri=>{ if(isInfiniteIngredient(ri.name)) return true; const ing=state.ingredients.find(i=>i.name===ri.name); return ing&&ing.qty>=flour*ri.pct/100; });
+  const canMake = recipeCanMake(rec);
   const card = document.createElement('div'); card.className='card sortable-item'; card.dataset.recipeId=rec.id;
   const header = document.createElement('div'); header.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;';
   const hL = document.createElement('div'); hL.style.cssText='display:flex;align-items:flex-start;gap:4px;min-width:0;flex:1;';
@@ -683,7 +739,7 @@ function buildRecipeCard(rec) {
     showConfirm(`コピーした材料（${ingredientClipboard.length}件）をこのレシピに追加しますか？`, ()=>{
       rec.ingredients = (rec.ingredients||[]).concat(ingredientClipboard.map(x=>({...x})));
       openRecipeIds.add(rec.id); saveState(); renderRecipes(); showToast('材料を貼り付けました');
-    });
+    }, { confirmLabel: '確定', danger: false });
   });
   editTagActions.appendChild(ingCopyBtn); editTagActions.appendChild(ingPasteBtn);
   editTagRow.appendChild(editTag); editTagRow.appendChild(editTagActions);
@@ -754,7 +810,7 @@ function buildRecipeCard(rec) {
       if(!rec.steps) rec.steps=[];
       rec.steps = rec.steps.concat(stepClipboard.map(x=>({...x})));
       openRecipeIds.add(rec.id); saveState(); renderRecipes(); showToast('手順を貼り付けました');
-    });
+    }, { confirmLabel: '確定', danger: false });
   });
   stepsTagActions.appendChild(stepCopyBtn); stepsTagActions.appendChild(stepPasteBtn);
   stepsTagRow.appendChild(stepsTag); stepsTagRow.appendChild(stepsTagActions);
@@ -1005,6 +1061,12 @@ function calendarLabelForMode() {
   }
   return `${calendarViewDate.getFullYear()}年${calendarViewDate.getMonth()+1}月`;
 }
+let _measureCtx = null;
+function measureEventNameWidth(text) {
+  if (!_measureCtx) { _measureCtx = document.createElement('canvas').getContext('2d'); }
+  _measureCtx.font = "600 12px -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Meiryo', sans-serif";
+  return _measureCtx.measureText(text).width;
+}
 function layoutDayEvents(events) {
   const layout = {};
   if (!events.length) return layout;
@@ -1031,18 +1093,91 @@ function layoutDayEvents(events) {
   });
   return layout;
 }
+function stepGradientColor(index, total) {
+  const t = total <= 1 ? 1 : index / (total - 1);
+  const c1 = { r: 248, g: 244, b: 230 }; // 象牙色（ステップ1）
+  const c2 = { r: 222, g: 176, b: 104 }; // 飴色（焼成後）
+  const r = Math.round(c1.r + (c2.r - c1.r) * t);
+  const g = Math.round(c1.g + (c2.g - c1.g) * t);
+  const b = Math.round(c1.b + (c2.b - c1.b) * t);
+  const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+  return { css: `rgb(${r},${g},${b})`, isLight: lum > 150 };
+}
+function attachEventDrag(evEl, ev, delBtn) {
+  evEl.addEventListener('pointerdown', (e) => {
+    if (e.target === delBtn || delBtn.contains(e.target)) return;
+    if (e.button !== undefined && e.button !== 0 && e.pointerType === 'mouse') return;
+    const startX = e.clientX, startY = e.clientY;
+    let dragging = false;
+    const onMove = (ev2) => {
+      const dx = ev2.clientX - startX, dy = ev2.clientY - startY;
+      if (!dragging && Math.hypot(dx, dy) > 6) { dragging = true; evEl.classList.add('dragging'); }
+      if (dragging) {
+        const hoverGrid = findGridUnderPoint(ev2.clientX, ev2.clientY);
+        document.querySelectorAll('.calendar-grid[data-date]').forEach(g => g.classList.toggle('drop-hover', g === hoverGrid));
+      }
+    };
+    const onUp = (ev2) => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onUp);
+      document.querySelectorAll('.calendar-grid[data-date]').forEach(g => g.classList.remove('drop-hover'));
+      evEl.classList.remove('dragging');
+      if (!dragging) {
+        expandedEventId = ev.id;
+        editingBatchEventId = null; editingTimeEventId = null;
+        renderCalendar();
+        return;
+      }
+      const hoverGrid = findGridUnderPoint(ev2.clientX, ev2.clientY);
+      if (!hoverGrid) { renderCalendar(); return; }
+      const gRect = hoverGrid.getBoundingClientRect();
+      let minutesFromTop = (ev2.clientY - gRect.top) / CAL_PX_PER_MIN;
+      minutesFromTop = Math.round(minutesFromTop / 10) * 10;
+      let startMinutes = CAL_START_HOUR * 60 + minutesFromTop;
+      const maxStart = CAL_END_HOUR * 60 - 10;
+      startMinutes = Math.max(CAL_START_HOUR * 60, Math.min(startMinutes, maxStart));
+      ev.startMinutes = startMinutes;
+      ev.date = hoverGrid.dataset.date;
+      saveState();
+      renderCalendar();
+      showToast(`${minutesToHHMM(startMinutes)}に移動しました`);
+    };
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onUp);
+  });
+}
+function eventProgressIndex(ev, stepsList) {
+  const hasActiveStep = ev.activeStepIndex !== null && ev.activeStepIndex !== undefined && stepsList.length;
+  if (hasActiveStep) return { index: Math.min(ev.activeStepIndex, stepsList.length - 1), active: true };
+  if (ev.doneSteps && ev.doneSteps.length) return { index: Math.min(Math.max(...ev.doneSteps), stepsList.length - 1), active: false };
+  return null;
+}
 function buildEventElement(ev, layoutInfo) {
   const rec = state.recipes.find(r => r.id === ev.recipeId);
+  const stepsList = rec ? ((rec.steps && rec.steps.length) ? rec.steps : [{ text: '（手順が未登録／デフォルト30分）', minutes: 30 }]) : [];
   const evEl = document.createElement('div'); evEl.className='calendar-event'; evEl.dataset.eventId=ev.id;
   const top = (ev.startMinutes - CAL_START_HOUR * 60) * CAL_PX_PER_MIN;
   const baseHeight = Math.max(24, ev.durationMinutes * CAL_PX_PER_MIN);
   evEl.style.top = top + 'px';
   const isExpanded = expandedEventId === ev.id;
   if (isExpanded) evEl.classList.add('expanded');
-  if (ev.activeStepIndex !== null && ev.activeStepIndex !== undefined) evEl.classList.add('blinking');
+  const hasActiveStep = ev.activeStepIndex !== null && ev.activeStepIndex !== undefined && stepsList.length;
+  if (hasActiveStep) evEl.classList.add('blinking');
+  const progress = eventProgressIndex(ev, stepsList);
+  const progressIndex = progress ? progress.index : null;
 
+  const titleBlock = document.createElement('div'); titleBlock.className='calendar-event-titleblock';
   const header = document.createElement('div'); header.className='calendar-event-header';
-  const nameWrap = document.createElement('div');
+  let headerTextColor = null;
+  if (progressIndex !== null) {
+    const gc = stepGradientColor(progressIndex, stepsList.length);
+    headerTextColor = gc.isLight ? '#4a2f0a' : '#fdf1df';
+    evEl.style.background = gc.css;
+    evEl.style.color = headerTextColor;
+  }
+  const nameWrap = document.createElement('div'); nameWrap.style.cssText='min-width:0;flex:1;';
   const nameDiv = document.createElement('div'); nameDiv.className='calendar-event-name'; nameDiv.textContent = rec ? rec.name : '(削除済みレシピ)';
   nameWrap.appendChild(nameDiv);
 
@@ -1062,8 +1197,10 @@ function buildEventElement(ev, layoutInfo) {
   } else {
     const timeDiv = document.createElement('div'); timeDiv.className='calendar-event-time'; timeDiv.textContent = minutesToHHMM(ev.startMinutes) + (isExpanded ? ' ✎' : '');
     if (isExpanded) { timeDiv.title='クリックして開始時間を修正'; timeDiv.addEventListener('click', e => { e.stopPropagation(); editingTimeEventId = ev.id; renderCalendar(); }); }
+    if (headerTextColor) timeDiv.style.color = headerTextColor;
     nameWrap.appendChild(timeDiv);
   }
+  if (headerTextColor) nameDiv.style.color = headerTextColor;
   header.appendChild(nameWrap);
 
   const delBtn = document.createElement('div'); delBtn.className='calendar-event-del'; delBtn.innerHTML=delIconSVG(11); delBtn.title='予定を削除';
@@ -1075,7 +1212,8 @@ function buildEventElement(ev, layoutInfo) {
       saveState(); renderCalendar();
     });
   });
-  evEl.appendChild(header);
+  titleBlock.appendChild(header);
+  evEl.appendChild(titleBlock);
   evEl.appendChild(delBtn);
 
   if (isExpanded && editingBatchEventId === ev.id) {
@@ -1087,28 +1225,36 @@ function buildEventElement(ev, layoutInfo) {
     bs.addEventListener('click', e => { e.stopPropagation(); commitBatch(); });
     bi.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); commitBatch(); } });
     bw.appendChild(bi); bw.appendChild(bs);
-    evEl.appendChild(bw);
+    titleBlock.appendChild(bw);
     setTimeout(() => bi.focus(), 0);
   } else {
-    const amtDiv = document.createElement('div'); amtDiv.className='calendar-event-amount'; amtDiv.textContent = ev.batchAmount ? `分量 ${fmt(ev.batchAmount)}g` : '分量未設定';
+    const amtDiv = document.createElement('div'); amtDiv.className='calendar-event-amount'; amtDiv.textContent = (ev.batchAmount ? `分量 ${fmt(ev.batchAmount)}g` : '分量未設定') + (ev.completed ? '　完成 ✓' : '');
     if (isExpanded) { amtDiv.title='クリックして製作分量を編集'; amtDiv.addEventListener('click', e => { e.stopPropagation(); editingBatchEventId = ev.id; renderCalendar(); }); }
-    evEl.appendChild(amtDiv);
+    if (headerTextColor) amtDiv.style.color = headerTextColor;
+    titleBlock.appendChild(amtDiv);
   }
 
-  if (!isExpanded) {
+  {
     const cols = (layoutInfo && layoutInfo.cols) || 1;
     const col = (layoutInfo && layoutInfo.col) || 0;
     evEl.style.left = `calc(${(col/cols)*100}% + 2px)`;
     evEl.style.width = `calc(${100/cols}% - 4px)`;
     evEl.style.right = 'auto';
-    evEl.style.height = baseHeight + 'px';
-  } else if (rec) {
+    evEl.style.minHeight = baseHeight + 'px';
+    evEl.style.height = 'auto';
+  }
+  if (isExpanded && rec) {
     const gauge = document.createElement('div'); gauge.className='event-steps-gauge';
-    const steps = (rec.steps && rec.steps.length) ? rec.steps : [{text:'（手順が未登録／デフォルト30分）', minutes:30}];
-    steps.forEach((step, si) => {
+    stepsList.forEach((step, si) => {
       const dur = stepDurationMinutes(step);
+      const gc = stepGradientColor(si, stepsList.length);
       const row = document.createElement('div'); row.className='gauge-step';
       row.style.minHeight = Math.max(30, dur * 4) + 'px';
+      row.style.background = gc.css;
+      row.style.color = gc.isLight ? '#4a2f0a' : '#fdf1df';
+      row.style.borderRadius = '6px';
+      row.style.marginBottom = '3px';
+      row.style.border = gc.isLight ? '1.5px solid rgba(120,80,20,0.4)' : '1.5px solid rgba(255,244,224,0.5)';
       const isActive = ev.activeStepIndex === si;
       const isDone = ev.doneSteps && ev.doneSteps.includes(si);
       const num = document.createElement('div'); num.className='gauge-step-num' + (isActive ? ' active-step' : ''); num.textContent = si+1;
@@ -1116,12 +1262,15 @@ function buildEventElement(ev, layoutInfo) {
       row.appendChild(num); row.appendChild(text);
       if (isActive) {
         const timerEl = document.createElement('div'); timerEl.className='gauge-step-timer'; timerEl.dataset.timerFor = ev.id + ':' + si; timerEl.textContent = '--:--';
+        timerEl.style.color = gc.isLight ? '#c62828' : '#ff8a65';
         row.appendChild(timerEl);
       } else if (isDone) {
         const doneEl = document.createElement('div'); doneEl.className='gauge-step-done'; doneEl.textContent = '完了 ✓';
+        doneEl.style.color = gc.isLight ? '#2e7d32' : '#aed581';
         row.appendChild(doneEl);
       } else {
         const durEl = document.createElement('div'); durEl.className='gauge-step-dur'; durEl.textContent = dur + '分';
+        durEl.style.color = gc.isLight ? 'rgba(74,47,10,0.75)' : 'rgba(253,241,223,0.8)';
         row.appendChild(durEl);
       }
       row.addEventListener('click', e => {
@@ -1132,7 +1281,7 @@ function buildEventElement(ev, layoutInfo) {
         showConfirm(`「${step.text}」を開始しますか？（${dur}分）`, () => {
           ev.activeStepIndex = si; ev.stepStartedAt = Date.now(); ev.stepDurationMs = dur * 60000;
           saveState(); renderCalendar();
-        });
+        }, { confirmLabel: '確定', danger: false });
       });
       gauge.appendChild(row);
     });
@@ -1140,12 +1289,16 @@ function buildEventElement(ev, layoutInfo) {
     evEl.style.height = 'auto';
   }
 
-  evEl.addEventListener('click', e => {
-    if (e.target === delBtn || delBtn.contains(e.target)) return;
-    expandedEventId = (expandedEventId === ev.id) ? null : ev.id;
-    editingBatchEventId = null; editingTimeEventId = null;
-    renderCalendar();
-  });
+  if (!isExpanded) {
+    attachEventDrag(evEl, ev, delBtn);
+  } else {
+    evEl.addEventListener('click', e => {
+      if (e.target === delBtn || delBtn.contains(e.target)) return;
+      expandedEventId = null;
+      editingBatchEventId = null; editingTimeEventId = null;
+      renderCalendar();
+    });
+  }
   return evEl;
 }
 function buildDayColumn(dateObj) {
@@ -1165,11 +1318,18 @@ function buildDayColumn(dateObj) {
   gridEl.style.setProperty('--hour-px', hourPx + 'px');
   const dayKey = todayKey(dateObj);
   const dayEvents = state.calendar.events.filter(ev => ev.date === dayKey);
-  if (!dayEvents.length) {
-    const hint = document.createElement('div'); hint.style.cssText='position:absolute;top:8px;left:6px;right:6px;font-size:11px;color:#c8bfae;'; hint.textContent='ドラッグ&ドロップ';
-    gridEl.appendChild(hint);
-  }
   const layout = layoutDayEvents(dayEvents);
+  let maxCols = 1, maxNameWidth = 0;
+  dayEvents.forEach(ev => {
+    const rec = state.recipes.find(r => r.id === ev.recipeId);
+    const name = rec ? rec.name : '(削除済みレシピ)';
+    maxNameWidth = Math.max(maxNameWidth, measureEventNameWidth(name));
+    const info = layout[ev.id];
+    if (info && info.cols) maxCols = Math.max(maxCols, info.cols);
+  });
+  const slotWidth = Math.min(220, Math.max(88, Math.ceil(maxNameWidth) + 46));
+  const neededWidth = slotWidth * maxCols;
+  col.style.flex = `1 0 ${neededWidth}px`;
   dayEvents.forEach(ev => gridEl.appendChild(buildEventElement(ev, layout[ev.id])));
   col.appendChild(gridEl);
   return col;
@@ -1198,6 +1358,22 @@ function renderDayOrWeekView() {
   wrap.appendChild(daysRow);
   body.appendChild(wrap);
   tickTimers();
+
+  if (calendarViewMode === 'week') {
+    const topScroll = document.createElement('div'); topScroll.className = 'calendar-top-scroll';
+    const topScrollInner = document.createElement('div'); topScrollInner.className = 'calendar-top-scroll-inner';
+    topScroll.appendChild(topScrollInner);
+    body.insertBefore(topScroll, wrap);
+    const syncWidths = () => {
+      topScrollInner.style.width = daysRow.scrollWidth + 'px';
+      topScroll.style.marginLeft = hoursEl.offsetWidth + 'px';
+    };
+    syncWidths();
+    let syncing = false;
+    topScroll.addEventListener('scroll', () => { if (syncing) return; syncing = true; daysRow.scrollLeft = topScroll.scrollLeft; syncing = false; });
+    daysRow.addEventListener('scroll', () => { if (syncing) return; syncing = true; topScroll.scrollLeft = daysRow.scrollLeft; syncing = false; });
+    window.addEventListener('resize', syncWidths, { once: true });
+  }
 }
 function renderMonthView() {
   const body = document.getElementById('calendar-body');
@@ -1223,8 +1399,15 @@ function renderMonthView() {
     const dayEvents = state.calendar.events.filter(ev => ev.date === dayKey).sort((a,b)=>a.startMinutes-b.startMinutes);
     dayEvents.slice(0,3).forEach(ev => {
       const rec = state.recipes.find(r => r.id === ev.recipeId);
+      const stepsList = rec ? ((rec.steps && rec.steps.length) ? rec.steps : [{ text: '', minutes: 30 }]) : [];
       const chip = document.createElement('div'); chip.className='month-cell-event';
       chip.textContent = `${minutesToHHMM(ev.startMinutes)} ${rec ? rec.name : '(削除済み)'}`;
+      const progress = eventProgressIndex(ev, stepsList);
+      if (progress) {
+        const gc = stepGradientColor(progress.index, stepsList.length);
+        chip.style.background = gc.css;
+        chip.style.color = gc.isLight ? '#4a2f0a' : '#fdf1df';
+      }
       cell.appendChild(chip);
     });
     if (dayEvents.length > 3) {
@@ -1254,16 +1437,37 @@ function renderCalendar() {
   } else {
     state.recipes.forEach(rec => {
       const chip = document.createElement('div'); chip.className='recipe-chip'; chip.dataset.recipeId=rec.id;
+      const canMake = recipeCanMake(rec);
       const handle=document.createElement('span'); handle.textContent='⠿'; handle.style.cssText='color:#c0b6a8;';
       const label2=document.createElement('span'); label2.textContent=rec.name;
       chip.appendChild(handle); chip.appendChild(label2);
+      if (!canMake) {
+        chip.classList.add('recipe-chip-lowstock');
+        const warn = document.createElement('span'); warn.className='recipe-chip-warn'; warn.textContent='⚠ 材料不足';
+        chip.appendChild(warn);
+        chip.title = '材料が不足しているためカレンダーに配置できません';
+        chip.addEventListener('pointerdown', e => { e.preventDefault(); showToast(`「${rec.name}」は材料が不足しているため配置できません`); });
+      } else {
+        attachRecipeChipDrag(chip, rec);
+      }
       chipRow.appendChild(chip);
-      attachRecipeChipDrag(chip, rec);
     });
   }
 
   if (calendarViewMode === 'month') renderMonthView();
   else renderDayOrWeekView();
+}
+function deductInventoryForEvent(ev, rec) {
+  if (!rec || !rec.ingredients || !rec.ingredients.length) { showStepPopup(`「${rec ? rec.name : 'レシピ'}」の製作が完了しました`); return; }
+  const flourAmt = ev.batchAmount;
+  if (!flourAmt || flourAmt <= 0) { showStepPopup(`「${rec.name}」の製作が完了しましたが、製作分量が未設定のため在庫は更新されませんでした`); return; }
+  rec.ingredients.forEach(ri => {
+    if (isInfiniteIngredient(ri.name)) return;
+    const ing = state.ingredients.find(i => i.name === ri.name);
+    if (ing) ing.qty = Math.max(0, Math.round((ing.qty - flourAmt * ri.pct / 100) * 1000) / 1000);
+  });
+  renderInventory();
+  showStepPopup(`「${rec.name}」の製作が完了しました。在庫を更新しました。`);
 }
 function tickTimers() {
   const now = Date.now();
@@ -1275,10 +1479,18 @@ function tickTimers() {
       if (!ev.doneSteps) ev.doneSteps = [];
       if (!ev.doneSteps.includes(ev.activeStepIndex)) ev.doneSteps.push(ev.activeStepIndex);
       const rec = state.recipes.find(r => r.id === ev.recipeId);
+      const totalSteps = (rec && rec.steps && rec.steps.length) ? rec.steps.length : 1;
       const stepText = rec && rec.steps && rec.steps[ev.activeStepIndex] ? rec.steps[ev.activeStepIndex].text : '手順';
+      const wasLastStep = ev.activeStepIndex === totalSteps - 1;
       ev.activeStepIndex = null; ev.stepStartedAt = null; ev.stepDurationMs = null;
       completedAny = true;
-      showToast(`「${stepText}」が完了しました`);
+      if (wasLastStep && !ev.completed) {
+        ev.completed = true;
+        deductInventoryForEvent(ev, rec);
+      } else {
+        const recName = rec ? rec.name : 'レシピ';
+        showStepPopup(`「${recName}」の「${stepText}」が完了しました`);
+      }
     } else {
       const key = ev.id + ':' + ev.activeStepIndex;
       const timerEl = document.querySelector(`[data-timer-for="${key}"]`);
