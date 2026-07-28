@@ -61,6 +61,10 @@ h1 { font-size: 18px; font-weight: 600; padding: 1rem 0 0.5rem; color: #3a2a1a; 
 .recipe-body.open { display: block; }
 .ing-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; table-layout: fixed; }
 .ing-table th { text-align: left; color: #888; font-weight: 400; padding: 4px 6px; border-bottom: 1px solid #ede8e0; font-size: 12px; }
+.ing-edit-input { border: none; background: transparent; font: inherit; color: inherit; padding: 3px 4px; border-radius: 4px; width: 100%; box-sizing: border-box; }
+.ing-edit-input:hover, .ing-edit-input:focus { background: #faf6ee; outline: 1px solid #d8cdb8; }
+.ing-row-handle { cursor: grab; color: #c0b6a8; text-align: center; user-select: none; touch-action: none; }
+.ing-row-handle:active { cursor: grabbing; }
 .ing-table td { padding: 6px; border-bottom: 1px solid #ede8e0; word-break: break-word; }
 .section-note { font-size: 12px; color: #888; margin-bottom: 12px; background: #f5f0e8; padding: 8px 12px; border-radius: 8px; line-height: 1.6; }
 .shop-card { background: #fff; border: 1px solid #ede8e0; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 10px; }
@@ -719,20 +723,52 @@ function buildRecipeCard(rec) {
   const body = document.createElement('div'); body.className='recipe-body'; body.id='rb-'+rec.id;
   if (openRecipeIds.has(rec.id)) body.classList.add('open');
   const table = document.createElement('table'); table.className='ing-table';
-  table.innerHTML='<thead><tr><th style="width:40%">材料</th><th style="width:20%;text-align:right">%</th><th style="width:25%;text-align:right">量(g)</th><th style="width:15%"></th></tr></thead>';
+  table.innerHTML='<thead><tr><th style="width:22px"></th><th style="width:38%">材料</th><th style="width:18%;text-align:right">%</th><th style="width:24%;text-align:right">量(g)</th><th style="width:15%"></th></tr></thead>';
   const tbody = document.createElement('tbody');
   if (!rec.ingredients.length) {
-    tbody.innerHTML='<tr><td colspan="4" style="color:#aaa;padding:8px 6px;font-size:13px;">材料を追加してください</td></tr>';
+    tbody.innerHTML='<tr><td colspan="5" style="color:#aaa;padding:8px 6px;font-size:13px;">材料を追加してください</td></tr>';
   } else {
     rec.ingredients.forEach((ri,ii)=>{
       const infinite=isInfiniteIngredient(ri.name);
       const ing=state.ingredients.find(i=>i.name===ri.name);
       const needed=flour*ri.pct/100; const ok=infinite||(ing&&ing.qty>=needed);
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td style="${ok?'':'color:#c62828'}">${ri.name}</td><td style="text-align:right">${fmt(ri.pct)}%</td><td style="text-align:right">${fmt(needed)}g</td><td style="text-align:right"></td>`;
+      const tr=document.createElement('tr'); tr.className='sortable-item'; tr.dataset.ingIndex=ii;
+
+      const tdHandle=document.createElement('td'); tdHandle.className='ing-row-handle'; tdHandle.textContent='⠿';
+
+      const tdName=document.createElement('td'); tdName.style.cssText = ok?'':'color:#c62828';
+      const nameInput=document.createElement('input'); nameInput.type='text'; nameInput.value=ri.name; nameInput.className='ing-edit-input';
+      const commitName=()=>{ const v=nameInput.value.trim(); if(!v){ nameInput.value=ri.name; return; } if(v===ri.name) return; ri.name=v; saveState(); renderRecipes(); };
+      nameInput.addEventListener('change', commitName);
+      nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') nameInput.blur(); });
+      tdName.appendChild(nameInput);
+
+      const tdPct=document.createElement('td'); tdPct.style.cssText='text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:2px;';
+      const pctInput=document.createElement('input'); pctInput.type='number'; pctInput.min='0'; pctInput.step='0.001'; pctInput.value=ri.pct; pctInput.className='ing-edit-input'; pctInput.style.cssText+='text-align:right;width:64px;';
+      const commitPct=()=>{ const v=parseFloat(pctInput.value); if(isNaN(v)||v<0){ pctInput.value=ri.pct; return; } const rounded=Math.round(v*1000)/1000; if(rounded===ri.pct) return; ri.pct=rounded; saveState(); renderRecipes(); };
+      pctInput.addEventListener('change', commitPct);
+      pctInput.addEventListener('keydown', e=>{ if(e.key==='Enter') pctInput.blur(); });
+      const pctSuffix=document.createElement('span'); pctSuffix.textContent='%'; pctSuffix.style.cssText='color:#888;flex-shrink:0;';
+      tdPct.appendChild(pctInput); tdPct.appendChild(pctSuffix);
+
+      const tdAmt=document.createElement('td'); tdAmt.style.textAlign='right'; tdAmt.textContent=`${fmt(needed)}g`;
+
+      const tdDel=document.createElement('td'); tdDel.style.textAlign='right';
       const idBtn=makeDeleteIconBtn('材料を削除'); idBtn.style.cssText='padding:3px 6px;';
       idBtn.addEventListener('click',()=>{ showConfirm(`「${ri.name}」をレシピから削除しますか？`, ()=>{ rec.ingredients.splice(ii,1); openRecipeIds.add(rec.id); saveState(); renderRecipes(); showToast('材料を削除しました'); }); });
-      tr.querySelector('td:last-child').appendChild(idBtn); tbody.appendChild(tr);
+      tdDel.appendChild(idBtn);
+
+      tr.appendChild(tdHandle); tr.appendChild(tdName); tr.appendChild(tdPct); tr.appendChild(tdAmt); tr.appendChild(tdDel);
+      tbody.appendChild(tr);
+
+      attachDragHandle(tdHandle, tr, {
+        containerSelector: 'tbody',
+        onDrop: () => {
+          const newOrder = Array.from(tbody.children).filter(el=>el.classList.contains('sortable-item')).map(el=>rec.ingredients[parseInt(el.dataset.ingIndex)]);
+          rec.ingredients = newOrder;
+          openRecipeIds.add(rec.id); saveState(); renderRecipes();
+        }
+      });
     });
   }
   table.appendChild(tbody);
